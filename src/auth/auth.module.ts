@@ -5,19 +5,20 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { Member } from '../entities/member.entity';
+import { RefreshToken } from '../entities/refresh-token.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Member]),
+    TypeOrmModule.forFeature([Member, RefreshToken]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET') || 'default_secret_key_change_in_production',
         signOptions: { 
-          expiresIn: '30m'
+          expiresIn: '1h'  // 액세스 토큰 1시간
         },
         verifyOptions: {
           ignoreExpiration: false

@@ -15,8 +15,9 @@ export class InsertMemberExerciseDto {
   @IsNotEmpty()
   intensity_level: string;
 
-  @IsNotEmpty()
-  heart_rate: string;
+  @IsOptional()
+  @Transform(({ value }) => value === undefined || value === null || value === '' ? null : String(value))
+  heart_rate?: string | null;
 
   @IsNotEmpty()
   reg_dt: string;
@@ -29,8 +30,8 @@ export class InsertMemberExerciseDto {
   mod_dt?: string;
 
   @IsOptional()
-  @Transform(({ value }) => Number(value))
-  mod_id?: number;
+  @Transform(({ value }) => value === undefined || value === null || value === '' ? null : Number(value))
+  mod_id?: number | null;
 }
 
 export class UpdateMemberExerciseDto {
@@ -48,8 +49,9 @@ export class UpdateMemberExerciseDto {
   @IsNotEmpty()
   intensity_level: string;
 
-  @IsNotEmpty()
-  heart_rate: string;
+  @IsOptional()
+  @Transform(({ value }) => value === undefined || value === null || value === '' ? null : String(value))
+  heart_rate?: string | null;
 }
 
 export class GetMemberExerciseInfoDto {
@@ -61,7 +63,31 @@ export class GetMemberExerciseInfoDto {
   exercise_dt: string;
 }
 
+export class GetMemberExerciseListDto {
+  @IsNotEmpty()
+  @Transform(({ value }) => Number(value))
+  mem_id: number;
+
+  @IsOptional()
+  year_month?: string;
+
+  @IsOptional()
+  category_dt?: string;
+
+  @IsOptional()
+  all_date?: boolean;
+}
+
 export interface MemberExerciseInfoResponse {
+  exercise_id: number;
+  mem_id: number;
+  exercise_dt: string;
+  exercise_time: string;
+  intensity_level: string;
+  heart_rate: string;
+}
+
+export interface MemberExerciseListResponse {
   exercise_id: number;
   mem_id: number;
   exercise_dt: string;

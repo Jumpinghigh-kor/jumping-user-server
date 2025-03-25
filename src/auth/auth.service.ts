@@ -3,13 +3,17 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Member } from '../entities/member.entity';
+import { RefreshToken } from '../entities/refresh-token.entity';
 import * as bcrypt from 'bcrypt';
+import { getCurrentDateYYYYMMDDHHIISS } from '../core/utils/date.utils';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(Member)
     private memberRepository: Repository<Member>,
+    @InjectRepository(RefreshToken)
+    private refreshTokenRepository: Repository<RefreshToken>,
     private jwtService: JwtService,
   ) {}
 
@@ -74,18 +78,99 @@ export class AuthService {
         center_id: user.center_id
       };
       
-      const token = this.jwtService.sign(payload);
+      const accessToken = this.jwtService.sign(payload);
+      const refreshToken = await this.generateRefreshToken(user.mem_id);
 
       return {
         success: true,
         data: {
-          access_token: token,
+          access_token: accessToken,
+          refresh_token: refreshToken,
           user: payload
         }
       };
     } catch (error) {
       console.error('Login error:', error);
       throw new HttpException('로그인 처리 중 오류가 발생했습니다.', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  private async generateRefreshToken(mem_id: number): Promise<string> {
+    const refreshToken = this.jwtService.sign(
+      { mem_id },
+      { expiresIn: '1y' }  // 리프레시 토큰 1년
+    );
+
+    const expires_dt = getCurrentDateYYYYMMDDHHIISS();
+    const reg_dt = getCurrentDateYYYYMMDDHHIISS();
+
+    await this.refreshTokenRepository.save({
+      mem_id,
+      token: refreshToken,
+      expires_dt,
+      del_yn: 'N',
+      reg_dt,
+      reg_id: mem_id
+    });
+
+    return refreshToken;
+  }
+
+  async refreshAccessToken(refreshToken: string): Promise<{ success: boolean; data: { access_token: string } | null; code: string }> {
+    try {
+      const tokenData = await this.refreshTokenRepository.findOne({
+        where: { token: refreshToken, del_yn: 'N' }
+      });
+
+      if (!tokenData) {
+        return {
+          success: false,
+          data: null,
+          code: 'INVALID_REFRESH_TOKEN'
+        };
+      }
+
+      if (new Date() > new Date(tokenData.expires_dt)) {
+        return {
+          success: false,
+          data: null,
+          code: 'EXPIRED_REFRESH_TOKEN'
+        };
+      }
+
+      const member = await this.memberRepository.findOne({
+        where: { mem_id: tokenData.mem_id }
+      });
+
+      if (!member) {
+        return {
+          success: false,
+          data: null,
+          code: 'USER_NOT_FOUND'
+        };
+      }
+
+      const payload = {
+        mem_id: member.mem_id,
+        mem_email_id: member.mem_email_id,
+        mem_name: member.mem_name,
+        center_id: member.center_id
+      };
+
+      const accessToken = this.jwtService.sign(payload);
+
+      return {
+        success: true,
+        data: { access_token: accessToken },
+        code: 'SUCCESS'
+      };
+    } catch (error) {
+      console.error('Refresh token error:', error);
+      return {
+        success: false,
+        data: null,
+        code: 'INTERNAL_SERVER_ERROR'
+      };
     }
   }
 }

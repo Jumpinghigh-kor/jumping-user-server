@@ -4,7 +4,7 @@ import { Repository, DataSource } from 'typeorm';
 import { CheckinLog } from '../entities/checkin-log.entity';
 import { Member } from '../entities/member.entity';
 import { InsertCheckinLogDto, GetCheckinLogListDto, CheckinLogResponse, ValidateMemberNumberDto } from './dto/checkin-log.dto';
-import { COMMON_RESPONSE_CODES, CHECKIN_RESPONSE_CODES } from '../common/constants/response-codes';
+import { COMMON_RESPONSE_CODES, CHECKIN_RESPONSE_CODES } from '../core/constants/response-codes';
 import { Brackets } from 'typeorm';
 
 @Injectable()
@@ -32,7 +32,7 @@ export class CheckinLogService {
       if (memberCount.chk_num_cnt === '0') {
         return {
           success: false,
-          message: '일치하는 회원이 없습니다.',
+          message: '회원번호가 잘못되었습니다.',
           code: CHECKIN_RESPONSE_CODES.MEMBER_NOT_FOUND
         };
       }

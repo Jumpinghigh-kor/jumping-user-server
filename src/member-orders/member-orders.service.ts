@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Member } from '../entities/member.entity';
 import { GetMemberOrdersDto, MemberOrderResponse, UpdateMemberOrdersRemainingCntDto } from './dto/member-orders.dto';
-import { COMMON_RESPONSE_CODES } from '../common/constants/response-codes';
+import { COMMON_RESPONSE_CODES } from '../core/constants/response-codes';
 
 @Injectable()
 export class MemberOrdersService {

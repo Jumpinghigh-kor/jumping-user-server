@@ -7,6 +7,15 @@ export class GetMemberInfoDto {
   mem_id: number;
 }
 
+export class UpdateMemberAppPasswordDto {
+  @IsNotEmpty()
+  @Transform(({ value }) => Number(value))
+  mem_id: number;
+
+  @IsNotEmpty()
+  mem_app_password: string;
+}
+
 export interface MemberInfoResponse {
   mem_id: number;
   mem_name: string;

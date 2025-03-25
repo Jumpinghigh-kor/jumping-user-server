@@ -17,7 +17,7 @@ export class MemberExercise {
   @Column({ name: 'intensity_level' })
   intensity_level: string;
 
-  @Column({ name: 'heart_rate' })
+  @Column({ name: 'heart_rate', nullable: true })
   heart_rate: string;
 
   @Column({ name: 'reg_dt' })
@@ -29,6 +29,6 @@ export class MemberExercise {
   @Column({ name: 'mod_dt' })
   mod_dt: string;
 
-  @Column({ name: 'mod_id' })
+  @Column({ name: 'mod_id', nullable: true })
   mod_id: number;
 } 

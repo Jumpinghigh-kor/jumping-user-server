@@ -8,10 +8,19 @@ import { ConfigModule } from '@nestjs/config';
 import { Member } from './entities/member.entity';
 import { CheckinLog } from './entities/checkin-log.entity';
 import { MemberExercise } from './entities/member-exercise.entity';
+import { Notice } from './entities/notice.entity';
+import { NoticesApp } from './entities/notices-app.entity';
+import { InquiryApp } from './entities/inquiry-app.entity';
 import { CheckinLogModule } from './checkin-log/checkin-log.module';
 import { MemberOrdersModule } from './member-orders/member-orders.module';
 import { MemberModule } from './member/member.module';
 import { MemberExerciseModule } from './member-exercise/member-exercise.module';
+import { NoticesAppModule } from './notices-app/notices-app.module';
+import { InquiryAppModule } from './inquiry-app/inquiry-app.module';
+import { UpdateLogAppModule } from './update-log-app/update-log-app.module';
+import { CommonModule } from './common/common.module';
+import { MemberImgFileModule } from './member-img-file/member-img-file.module';
+import { RefreshToken } from './entities/refresh-token.entity';
 
 @Module({
   imports: [
@@ -25,7 +34,7 @@ import { MemberExerciseModule } from './member-exercise/member-exercise.module';
       username: process.env.DB_USERNAME || 'root',
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_DATABASE || 'jumping',
-      entities: [Member, CheckinLog, MemberExercise],
+      entities: [Member, CheckinLog, MemberExercise, Notice, NoticesApp, InquiryApp, RefreshToken],
       synchronize: false, // 데이터 보존을 위해 false로 설정
     }),
     AuthModule,
@@ -33,7 +42,12 @@ import { MemberExerciseModule } from './member-exercise/member-exercise.module';
     CheckinLogModule,
     MemberOrdersModule,
     MemberModule,
-    MemberExerciseModule
+    MemberExerciseModule,
+    NoticesAppModule,
+    InquiryAppModule,
+    UpdateLogAppModule,
+    CommonModule,
+    MemberImgFileModule
   ],
   controllers: [AppController],
   providers: [AppService],
