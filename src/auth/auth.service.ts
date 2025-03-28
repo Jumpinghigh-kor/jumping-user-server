@@ -26,7 +26,8 @@ export class AuthService {
           'm.mem_email_id',
           'm.mem_name',
           'm.mem_app_password',
-          'm.center_id'
+          'm.center_id',
+          'm.mem_app_status'
         ])
         .where('m.mem_email_id = :email', { email })
         .getOne();
@@ -75,7 +76,8 @@ export class AuthService {
         mem_id: user.mem_id,
         mem_email_id: user.mem_email_id,
         mem_name: user.mem_name,
-        center_id: user.center_id
+        center_id: user.center_id,
+        mem_app_status: user.mem_app_status
       };
       
       const accessToken = this.jwtService.sign(payload);
@@ -104,6 +106,17 @@ export class AuthService {
     const expires_dt = getCurrentDateYYYYMMDDHHIISS();
     const reg_dt = getCurrentDateYYYYMMDDHHIISS();
 
+    // 기존 리프레시 토큰을 del_yn = 'Y'로 업데이트
+    await this.refreshTokenRepository.update(
+      { mem_id, del_yn: 'N' },
+      { 
+        del_yn: 'Y',
+        mod_dt: reg_dt,
+        mod_id: mem_id
+      }
+    );
+
+    // 새로운 리프레시 토큰 저장
     await this.refreshTokenRepository.save({
       mem_id,
       token: refreshToken,
@@ -154,7 +167,8 @@ export class AuthService {
         mem_id: member.mem_id,
         mem_email_id: member.mem_email_id,
         mem_name: member.mem_name,
-        center_id: member.center_id
+        center_id: member.center_id,
+        mem_app_status: member.mem_app_status
       };
 
       const accessToken = this.jwtService.sign(payload);

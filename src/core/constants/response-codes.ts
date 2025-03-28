@@ -2,7 +2,8 @@
 export const COMMON_RESPONSE_CODES = {
   SUCCESS: '0000',
   FAIL: '9999',
-  NO_DATA: '1000'
+  NO_DATA: '1000',
+  DUPLICATE: '1001'
 } as const;
 
 // 출석 관련 응답 코드

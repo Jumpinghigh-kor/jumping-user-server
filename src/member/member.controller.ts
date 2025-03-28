@@ -21,4 +21,18 @@ export class MemberController {
   ): Promise<{ success: boolean; message: string; code: string }> {
     return this.memberService.updateMemberAppPassword(updateMemberAppPasswordDto);
   }
+
+  @Post('checkNicknameDuplicate')
+  async checkNicknameDuplicate(
+    @Body() body: { mem_nickname: string }
+  ): Promise<{ success: boolean; message: string; code: string }> {
+    return this.memberService.checkNicknameDuplicate(body.mem_nickname);
+  }
+
+  @Post('completeSignup')
+  async completeSignup(
+    @Body() body: { mem_id: number, mem_nickname: string }
+  ): Promise<{ success: boolean; message: string; code: string }> {
+    return this.memberService.completeSignup(body);
+  }
 } 

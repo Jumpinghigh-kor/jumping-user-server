@@ -47,7 +47,6 @@ export class MemberImgFileService {
         code: COMMON_RESPONSE_CODES.SUCCESS
       };
     } catch (error: any) {
-      console.log(error);
       return {
         success: false,
         data: null,

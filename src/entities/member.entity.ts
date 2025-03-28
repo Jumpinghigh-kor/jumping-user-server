@@ -28,4 +28,10 @@ export class Member {
   // 앱 수정 ID
   @Column({ name: 'app_mod_id', nullable: true })
   app_mod_id: number;
+
+  @Column({ nullable: true })
+  mem_app_status: string;
+
+  @Column({ nullable: true })
+  mem_nickname: string;
 } 

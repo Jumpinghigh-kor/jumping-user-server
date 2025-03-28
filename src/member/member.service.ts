@@ -36,7 +36,6 @@ export class MemberService {
           'center_id'
         ])
         .where('mem_status = 1')
-        .andWhere('mem_app_status = "ACTIVE"')
         .andWhere('mem_id = :mem_id', { mem_id })
         .getRawOne();
 
@@ -99,6 +98,92 @@ export class MemberService {
         code: COMMON_RESPONSE_CODES.SUCCESS
       };
     } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message: error.message,
+          code: COMMON_RESPONSE_CODES.FAIL
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async checkNicknameDuplicate(mem_nickname: string): Promise<{ success: boolean; message: string; code: string }> {
+    try {
+      console.log('Checking nickname:', mem_nickname);
+      
+      // 테이블과 별칭을 일관되게 사용
+      const existingMember = await this.memberRepository
+        .createQueryBuilder()
+        .select('mem_id')
+        .where('mem_nickname = :mem_nickname', { mem_nickname })
+        .andWhere('mem_app_status = :status', { status: 'ACTIVE' })
+        .getRawOne();
+
+      console.log('Query result:', existingMember);
+
+      if (existingMember) {
+        return {
+          success: false,
+          message: '이미 사용 중인 닉네임입니다.',
+          code: COMMON_RESPONSE_CODES.DUPLICATE
+        };
+      }
+
+      return {
+        success: true,
+        message: '사용 가능한 닉네임입니다.',
+        code: COMMON_RESPONSE_CODES.SUCCESS
+      };
+    } catch (error) {
+      console.error('Error checking nickname:', error);
+      throw new HttpException(
+        {
+          success: false,
+          message: error.message,
+          code: COMMON_RESPONSE_CODES.FAIL
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async completeSignup(data: { mem_id: number, mem_nickname: string }): Promise<{ success: boolean; message: string; code: string }> {
+    try {
+      const { mem_id, mem_nickname } = data;
+      
+      // 현재 시간 포맷팅 (YYYYMMDDHHIISS)
+      const app_mod_dt = () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')";
+      console.log('mem_id::', mem_id)
+      // Update member record
+      const result = await this.memberRepository
+        .createQueryBuilder()
+        .update('members')
+        .set({
+          mem_nickname,
+          mem_app_status: 'ACTIVE',
+          app_mod_dt,
+          app_mod_id: mem_id
+        })
+        .where("mem_id = :mem_id", { mem_id })
+        .execute();
+      console.log('result::', result)
+      if (result.affected === 0) {
+        return {
+          success: false,
+          message: '업데이트할 회원을 찾을 수 없습니다.',
+          code: COMMON_RESPONSE_CODES.NO_DATA
+        };
+      }
+
+      return {
+        success: true,
+        message: '회원 가입이 완료되었습니다.',
+        code: COMMON_RESPONSE_CODES.SUCCESS
+      };
+    } catch (error) {
+      console.error('Error completing signup:', error);
       throw new HttpException(
         {
           success: false,
