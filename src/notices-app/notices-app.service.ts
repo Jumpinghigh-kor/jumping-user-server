@@ -18,12 +18,14 @@ export class NoticesAppService {
       // 요청된 쿼리를 사용하여 데이터 조회
       const noticesAppList = await this.dataSource
         .createQueryBuilder()
-        .select('title', 'title')
+        .select('notices_type', 'notices_type')
+        .addSelect('title', 'title')
         .addSelect('content', 'content')
         .addSelect('notices_app_id', 'notices_app_id')
         .addSelect('reg_dt', 'reg_dt')
         .from('notices_app', 'na')
         .where('na.del_yn = :del_yn', { del_yn: 'N' })
+        .andWhere('na.view_yn = :view_yn', { view_yn: 'Y' })
         .orderBy('notices_app_id', 'DESC')
         .getRawMany();
 

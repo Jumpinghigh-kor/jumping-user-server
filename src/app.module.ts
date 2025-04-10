@@ -21,6 +21,12 @@ import { UpdateLogAppModule } from './update-log-app/update-log-app.module';
 import { CommonModule } from './common/common.module';
 import { MemberImgFileModule } from './member-img-file/member-img-file.module';
 import { RefreshToken } from './entities/refresh-token.entity';
+import { BannerAppModule } from './banner-app/banner-app.module';
+import { BannerApp } from './entities/banner-app.entity';
+import { ProductAppModule } from './product-app/product-app.module';
+import { ProductApp } from './entities/product-app.entity';
+import { MemberReviewAppModule } from './member-review-app/member-review-app.module';
+import { MemberReviewApp } from './entities/member-review-app.entity';
 
 @Module({
   imports: [
@@ -34,7 +40,7 @@ import { RefreshToken } from './entities/refresh-token.entity';
       username: process.env.DB_USERNAME || 'root',
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_DATABASE || 'jumping',
-      entities: [Member, CheckinLog, MemberExercise, Notice, NoticesApp, InquiryApp, RefreshToken],
+      entities: [Member, CheckinLog, MemberExercise, Notice, NoticesApp, InquiryApp, RefreshToken, BannerApp, ProductApp, MemberReviewApp],
       synchronize: false, // 데이터 보존을 위해 false로 설정
     }),
     AuthModule,
@@ -47,7 +53,10 @@ import { RefreshToken } from './entities/refresh-token.entity';
     InquiryAppModule,
     UpdateLogAppModule,
     CommonModule,
-    MemberImgFileModule
+    MemberImgFileModule,
+    BannerAppModule,
+    ProductAppModule,
+    MemberReviewAppModule
   ],
   controllers: [AppController],
   providers: [AppService],
