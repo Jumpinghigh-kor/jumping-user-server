@@ -13,7 +13,26 @@ export class UpdateMemberAppPasswordDto {
   mem_id: number;
 
   @IsNotEmpty()
+  @IsString()
+  current_password: string;
+
+  @IsNotEmpty()
+  @IsString()
   mem_app_password: string;
+}
+
+export class FindPasswordDto {
+  @IsNotEmpty()
+  @IsString()
+  mem_name: string;
+
+  @IsNotEmpty()
+  @IsString()
+  mem_phone: string;
+
+  @IsNotEmpty()
+  @IsString()
+  mem_email_id: string;
 }
 
 export interface MemberInfoResponse {

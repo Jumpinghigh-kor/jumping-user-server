@@ -10,14 +10,19 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() authDto: AuthDto) {
-    const user = await this.authService.validateUser(
-      authDto.mem_email_id,
-      authDto.mem_app_password
-    );
-    return this.authService.login(user);
+    try {
+      const user = await this.authService.validateUser(
+        authDto.mem_email_id,
+        authDto.mem_app_password
+      );
+      return this.authService.login(user);
+    } catch (error) {
+      // 에러 메시지와 코드를 그대로 클라이언트에게 전달
+      throw error;
+    }
   }
 
-  @Post('refresh')
+  @Post('refresh-token')
   async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
     return this.authService.refreshAccessToken(refreshTokenDto.refresh_token);
   }

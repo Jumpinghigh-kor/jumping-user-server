@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { Member } from './entities/member.entity';
@@ -27,6 +26,8 @@ import { ProductAppModule } from './product-app/product-app.module';
 import { ProductApp } from './entities/product-app.entity';
 import { MemberReviewAppModule } from './member-review-app/member-review-app.module';
 import { MemberReviewApp } from './entities/member-review-app.entity';
+import { MemberScheduleAppModule } from './member-schedule-app/member-schedule-app.module';
+import { MemberSchedule } from './entities/member-schedule-app.entity';
 
 @Module({
   imports: [
@@ -40,11 +41,10 @@ import { MemberReviewApp } from './entities/member-review-app.entity';
       username: process.env.DB_USERNAME || 'root',
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_DATABASE || 'jumping',
-      entities: [Member, CheckinLog, MemberExercise, Notice, NoticesApp, InquiryApp, RefreshToken, BannerApp, ProductApp, MemberReviewApp],
+      entities: [Member, CheckinLog, MemberExercise, Notice, NoticesApp, InquiryApp, RefreshToken, BannerApp, ProductApp, MemberReviewApp, MemberSchedule],
       synchronize: false, // 데이터 보존을 위해 false로 설정
     }),
     AuthModule,
-    UsersModule,
     CheckinLogModule,
     MemberOrdersModule,
     MemberModule,
@@ -56,7 +56,8 @@ import { MemberReviewApp } from './entities/member-review-app.entity';
     MemberImgFileModule,
     BannerAppModule,
     ProductAppModule,
-    MemberReviewAppModule
+    MemberReviewAppModule,
+    MemberScheduleAppModule
   ],
   controllers: [AppController],
   providers: [AppService],
