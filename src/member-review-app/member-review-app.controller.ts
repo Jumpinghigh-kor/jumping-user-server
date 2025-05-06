@@ -14,4 +14,29 @@ export class MemberReviewAppController {
   ): Promise<{ success: boolean; data: any[] | null; code: string }> {
     return this.memberReviewAppService.getMemberReviewAppList(getMemberReviewAppListDto);
   }
+
+  @Post('getTargetMemberReviewAppList')
+  async getTargetMemberReviewAppList(
+    @Body('mem_id') mem_id: string
+  ): Promise<{ success: boolean; data: any[] | null; code: string }> {
+    return this.memberReviewAppService.getTargetMemberReviewAppList(mem_id);
+  }
+
+  @Post('insertMemberReviewApp')
+  async insertMemberReviewApp(
+    @Body() reviewData: {
+      mem_id: string;
+      product_app_id: string;
+      title: string;
+      content: string;
+      star_point: number;
+      reg_id: string;
+      images?: Array<{
+        file_name: string;
+        file_data: any;
+      }>;
+    }
+  ): Promise<{ success: boolean; data: any | null; code: string }> {
+    return this.memberReviewAppService.insertMemberReviewApp(reviewData);
+  }
 }

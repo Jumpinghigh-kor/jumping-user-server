@@ -11,6 +11,14 @@ export class GetCenterScheduleAppDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
   center_id: number;
+
+  @IsNotEmpty()
+  @Transform(({ value }) => Number(value))
+  mem_id: number;
+
+  @IsNotEmpty()
+  @Transform(({ value }) => Number(value))
+  sch_dt: number;
 }
 
 export class InsertMemberScheduleAppDto {
@@ -23,14 +31,23 @@ export class InsertMemberScheduleAppDto {
   sch_id: number;
 
   @IsNotEmpty()
+  @Transform(({ value }) => Number(value))
+  basic_sch_id: number;
+
+  @IsNotEmpty()
   @IsString()
   sch_dt: string;
 }
 
 export class DeleteMemberScheduleAppDto {
   @IsNotEmpty()
-  @Transform(({ value }) => Number(value))
-  sch_app_id: number;
+  @Transform(({ value }) => {
+    if (Array.isArray(value)) {
+      return value.map(v => Number(v));
+    }
+    return Number(value);
+  })
+  sch_app_id: number | number[];
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
@@ -45,10 +62,6 @@ export class UpdateMemberScheduleAppDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
   sch_id: number;
-
-  @IsNotEmpty()
-  @IsString()
-  sch_dt: string;
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))

@@ -14,7 +14,7 @@ export class MemberScheduleAppService {
     private dataSource: DataSource
   ) {}
 
-  async getCenterScheduleList(center_id: number): Promise<{ success: boolean; data: any[] | null; code: string }> {
+  async getCenterScheduleList(center_id: number, mem_id: number, sch_dt: number): Promise<{ success: boolean; data: any[] | null; code: string }> {
     try {
       // NestJS TypeORM QueryBuilder 사용
       const schedules = await this.dataSource
@@ -23,11 +23,42 @@ export class MemberScheduleAppService {
           'sch_id',
           'sch_time',
           'sch_max_cap',
-          'sch_info'
+          'sch_info',
+          `(
+            SELECT
+              COUNT(*)
+            FROM  members sm
+            WHERE sm.mem_sch_id = s.sch_id
+            AND   sm.mem_app_status = 'ACTIVE'
+            AND   sm.center_id = :center_id
+          ) as mem_total_sch_cnt`,
+          `(
+            SELECT
+              sm.mem_sch_id
+            FROM  members sm
+            WHERE sm.mem_sch_id = s.sch_id
+            AND   sm.mem_id = :mem_id
+          ) AS mem_sch_id`,
+          `(
+            SELECT
+              COUNT(*)
+            FROM  member_schedule_app smsa
+            WHERE smsa.basic_sch_id = s.sch_id
+            AND   smsa.sch_dt = :sch_dt
+            AND   smsa.del_yn = 'N'
+          ) as mem_basic_sch_cnt`,
+          `(
+            SELECT
+              COUNT(*)
+            FROM  member_schedule_app smsa
+            WHERE smsa.sch_id = s.sch_id
+            AND   smsa.sch_dt = :sch_dt
+            AND   smsa.del_yn = 'N'
+          ) as mem_change_sch_cnt`
         ])
-        .from('schedule', 'sch')
-        .where('sch.center_id = :center_id', { center_id })
-        .andWhere('sch.sch_status = :status', { status: 1 })
+        .from('schedule', 's')
+        .where('s.center_id = :center_id', { center_id, mem_id, sch_dt })
+        .andWhere('s.sch_status = :status', { status: 1 })
         .getRawMany();
 
       if (!schedules || schedules.length === 0) {
@@ -73,15 +104,20 @@ export class MemberScheduleAppService {
           'mod_id',
           `(
             SELECT
-              ssch.sch_time
-            FROM  schedule ssch
-            WHERE ssch.sch_id = msa.sch_id
-          ) as sch_time`
+              ss.sch_time
+            FROM  schedule ss
+            WHERE ss.sch_id = msa.sch_id
+          ) as sch_time`,
         ])
         .from('member_schedule_app', 'msa')
         .where('msa.mem_id = :mem_id', { mem_id })
         .andWhere('msa.del_yn = :del_yn', { del_yn: 'N' })
-        .orderBy('msa.sch_app_id', 'DESC')
+        .orderBy(`
+                  CASE
+                    WHEN msa.sch_dt = DATE_FORMAT(NOW(), '%Y%m%d') THEN 1
+                    WHEN msa.sch_dt > DATE_FORMAT(NOW(), '%Y%m%d') THEN 2
+                    ELSE 3
+                  END`, 'ASC')
         .getRawMany();
 
       if (!schedules || schedules.length === 0) {
@@ -112,7 +148,7 @@ export class MemberScheduleAppService {
 
   async insertMemberScheduleApp(insertMemberScheduleDto: InsertMemberScheduleAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { mem_id, sch_id, sch_dt } = insertMemberScheduleDto;
+      const { mem_id, sch_id, sch_dt, basic_sch_id } = insertMemberScheduleDto;
       
       // 현재 시간 (YYYYMMDDHHIISS 형식)
       const currentDate = getCurrentDateYYYYMMDDHHIISS();
@@ -125,6 +161,7 @@ export class MemberScheduleAppService {
         .values({
           mem_id: mem_id,
           sch_id: sch_id,
+          basic_sch_id: basic_sch_id,
           sch_dt: sch_dt,
           del_yn: 'N',
           reg_dt: currentDate,
@@ -153,21 +190,38 @@ export class MemberScheduleAppService {
   async deleteMemberScheduleApp(deleteMemberScheduleAppDto: DeleteMemberScheduleAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
       const { sch_app_id, mem_id } = deleteMemberScheduleAppDto;
-      
+      console.log(sch_app_id);
       // 현재 시간 (YYYYMMDDHHIISS 형식)
       const currentDate = getCurrentDateYYYYMMDDHHIISS();
       
-      // TypeORM QueryBuilder 사용하여 del_yn을 'Y'로 업데이트
-      const result = await this.dataSource
-        .createQueryBuilder()
-        .update('member_schedule_app')
-        .set({
-          del_yn: 'Y',
-          mod_dt: currentDate,
-          mod_id: mem_id
-        })
-        .where('sch_app_id = :sch_app_id', { sch_app_id })
-        .execute();
+      let result;
+      
+      // sch_app_id가 배열인 경우와 단일 값인 경우 처리
+      if (Array.isArray(sch_app_id)) {
+        // 배열인 경우, IN 연산자 사용
+        result = await this.dataSource
+          .createQueryBuilder()
+          .update('member_schedule_app')
+          .set({
+            del_yn: 'Y',
+            mod_dt: currentDate,
+            mod_id: mem_id
+          })
+          .where('sch_app_id IN (:...sch_app_ids)', { sch_app_ids: sch_app_id })
+          .execute();
+      } else {
+        // 단일 값인 경우, 기존 로직 유지
+        result = await this.dataSource
+          .createQueryBuilder()
+          .update('member_schedule_app')
+          .set({
+            del_yn: 'Y',
+            mod_dt: currentDate,
+            mod_id: mem_id
+          })
+          .where('sch_app_id = :sch_app_id', { sch_app_id })
+          .execute();
+      }
       
       if (result.affected === 0) {
         return {
@@ -197,7 +251,7 @@ export class MemberScheduleAppService {
 
   async updateMemberScheduleApp(updateMemberScheduleAppDto: UpdateMemberScheduleAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { sch_app_id, sch_id, sch_dt, mem_id } = updateMemberScheduleAppDto;
+      const { sch_app_id, sch_id, mem_id } = updateMemberScheduleAppDto;
       
       // 현재 시간 (YYYYMMDDHHIISS 형식)
       const currentDate = getCurrentDateYYYYMMDDHHIISS();
@@ -208,7 +262,6 @@ export class MemberScheduleAppService {
         .update('member_schedule_app')
         .set({
           sch_id: sch_id,
-          sch_dt: sch_dt,
           mod_dt: currentDate,
           mod_id: mem_id
         })

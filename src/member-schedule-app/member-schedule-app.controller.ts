@@ -10,7 +10,7 @@ export class MemberScheduleAppController {
 
   @Post('getCenterScheduleList')
   getCenterScheduleList(@Body() getCenterScheduleDto: GetCenterScheduleAppDto) {
-    return this.memberScheduleAppService.getCenterScheduleList(getCenterScheduleDto.center_id);
+    return this.memberScheduleAppService.getCenterScheduleList(getCenterScheduleDto.center_id, getCenterScheduleDto.mem_id, getCenterScheduleDto.sch_dt);
   }
 
   @Post('getMemberScheduleAppList')

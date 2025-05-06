@@ -5,6 +5,10 @@ export class GetProductAppListDto {
   @IsOptional()
   @IsString()
   big_category?: string;
+
+  @IsNotEmpty()
+  @Transform(({ value }) => Number(value))
+  mem_id: number;
 }
 
 export interface ProductAppListResponse {

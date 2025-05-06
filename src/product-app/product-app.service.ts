@@ -14,7 +14,7 @@ export class ProductAppService {
 
   async getProductAppList(getProductAppListDto: GetProductAppListDto): Promise<{ success: boolean; data: ProductAppListResponse[] | null; code: string }> {
     try {
-      const { big_category } = getProductAppListDto;
+      const { big_category, mem_id } = getProductAppListDto;
       const queryBuilder = this.productAppRepository
         .createQueryBuilder('p')
         .select([
@@ -22,8 +22,8 @@ export class ProductAppService {
           'big_category',
           'small_category',
           'title',
-          'price',
-          'original_price',
+          'FORMAT(price, 0) AS price',
+          'FORMAT(original_price, 0) AS original_price',
           'discount',
           'give_point',
           'sell_start_dt',
@@ -33,10 +33,11 @@ export class ProductAppService {
           'reg_dt',
           'reg_id',
           'mod_dt',
-          'mod_id'
+          'mod_id',
         ])
         .where('del_yn = :del_yn', { del_yn: 'N' })
-        .andWhere('view_yn = :view_yn', { view_yn: 'Y' });
+        .andWhere('view_yn = :view_yn', { view_yn: 'Y' })
+        .setParameter('mem_id', mem_id);
       
       if (big_category) {
         queryBuilder.andWhere('big_category = :big_category', { big_category });

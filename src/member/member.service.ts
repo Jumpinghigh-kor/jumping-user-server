@@ -39,7 +39,13 @@ export class MemberService {
               center_name
             FROM  centers
             WHERE center_id = m.center_id
-          ) as center_name`
+          ) AS center_name`,
+          `(
+            SELECT
+              ss.sch_time
+            FROM  schedule ss
+            WHERE ss.sch_id = m.mem_sch_id
+          ) AS sch_time`
         ])
         .where('mem_id = :mem_id', { mem_id })
         .getRawOne();

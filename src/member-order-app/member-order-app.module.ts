@@ -1,8 +1,7 @@
-
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MemberOrdersController } from './member-orders.controller';
-import { MemberOrdersService } from './member-orders.service';
+import { MemberOrderAppController } from './member-order-app.controller';
+import { MemberOrderAppService } from './member-order-app.service';
 import { Member } from '../entities/member.entity';
 import { AuthModule } from '../auth/auth.module';
 
@@ -11,7 +10,7 @@ import { AuthModule } from '../auth/auth.module';
     TypeOrmModule.forFeature([Member]),
     AuthModule
   ],
-  controllers: [MemberOrdersController],
-  providers: [MemberOrdersService]
+  controllers: [MemberOrderAppController],
+  providers: [MemberOrderAppService]
 })
-export class MemberOrdersModule {} 
+export class MemberOrderAppModule {} 

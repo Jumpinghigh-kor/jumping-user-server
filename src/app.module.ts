@@ -12,12 +12,12 @@ import { NoticesApp } from './entities/notices-app.entity';
 import { InquiryApp } from './entities/inquiry-app.entity';
 import { CheckinLogModule } from './checkin-log/checkin-log.module';
 import { MemberOrdersModule } from './member-orders/member-orders.module';
+import { MemberOrderAppModule } from './member-order-app/member-order-app.module';
 import { MemberModule } from './member/member.module';
 import { MemberExerciseModule } from './member-exercise/member-exercise.module';
 import { NoticesAppModule } from './notices-app/notices-app.module';
 import { InquiryAppModule } from './inquiry-app/inquiry-app.module';
 import { UpdateLogAppModule } from './update-log-app/update-log-app.module';
-import { CommonModule } from './common/common.module';
 import { MemberImgFileModule } from './member-img-file/member-img-file.module';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { BannerAppModule } from './banner-app/banner-app.module';
@@ -28,6 +28,10 @@ import { MemberReviewAppModule } from './member-review-app/member-review-app.mod
 import { MemberReviewApp } from './entities/member-review-app.entity';
 import { MemberScheduleAppModule } from './member-schedule-app/member-schedule-app.module';
 import { MemberSchedule } from './entities/member-schedule-app.entity';
+import { CommonCodeModule } from './common-code/common-code.module';
+import { MemberZzimAppModule } from './member-zzim-app/member-zzim-app.module';
+import { MemberSearchAppModule } from './member-search-app/member-search-app.module';
+import { MemberShippingAddressModule } from './member-shipping-address/member-shipping-address.module';
 
 @Module({
   imports: [
@@ -46,18 +50,22 @@ import { MemberSchedule } from './entities/member-schedule-app.entity';
     }),
     AuthModule,
     CheckinLogModule,
+    MemberOrderAppModule,
     MemberOrdersModule,
     MemberModule,
     MemberExerciseModule,
     NoticesAppModule,
     InquiryAppModule,
     UpdateLogAppModule,
-    CommonModule,
     MemberImgFileModule,
     BannerAppModule,
     ProductAppModule,
     MemberReviewAppModule,
-    MemberScheduleAppModule
+    MemberScheduleAppModule,
+    CommonCodeModule,
+    MemberZzimAppModule,
+    MemberSearchAppModule,
+    MemberShippingAddressModule
   ],
   controllers: [AppController],
   providers: [AppService],

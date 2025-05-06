@@ -36,4 +36,8 @@ export class InsertCommonFileDto {
   mod_id: number;
 }
 
-export class CommonDto {} 
+export class CommonDto {
+  @IsNotEmpty()
+  @IsString()
+  group_code: string;
+} 
