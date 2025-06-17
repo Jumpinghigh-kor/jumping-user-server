@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { COMMON_RESPONSE_CODES } from '../core/constants/response-codes';
 import { ProductApp } from '../entities/product-app.entity';
-import { GetProductAppListDto, ProductAppListResponse, GetProductAppImgDetailDto, ProductAppImgDetailResponse, SelectProductAppThumbnailImgDto, ProductAppThumbnailImgResponse } from './dto/product-app.dto';
+import { GetProductAppListDto, ProductAppListResponse, GetProductAppImgDetailDto, ProductAppImgDetailResponse, SelectProductAppThumbnailImgDto, ProductAppThumbnailImgResponse, GetProductDetailAppListDto, ProductDetailAppResponse } from './dto/product-app.dto';
 
 @Injectable()
 export class ProductAppService {
@@ -18,26 +18,35 @@ export class ProductAppService {
       const queryBuilder = this.productAppRepository
         .createQueryBuilder('p')
         .select([
-          'product_app_id',
-          'big_category',
-          'small_category',
-          'title',
-          'FORMAT(price, 0) AS price',
-          'FORMAT(original_price, 0) AS original_price',
-          'discount',
-          'give_point',
-          'sell_start_dt',
-          'sell_end_dt',
-          'view_yn',
-          'del_yn',
-          'reg_dt',
-          'reg_id',
-          'mod_dt',
-          'mod_id',
+          'product_app_id'
+          , 'small_category'
+          , 'brand_name'
+          , 'product_name'
+          , 'title'
+          , 'FORMAT(price, 0) AS price'
+          , 'FORMAT(original_price, 0) AS original_price'
+          , 'discount'
+          , 'give_point'
+          , 'sell_start_dt'
+          , 'sell_end_dt'
+          , 'view_yn'
+          , 'del_yn'
+          , 'reg_dt'
+          , 'reg_id'
+          , 'mod_dt'
+          , 'mod_id'
+          , `
+              (
+                SELECT
+                  smza.zzim_yn AS zzim_yn
+                FROM  member_zzim_app smza
+                WHERE smza.product_app_id = p.product_app_id
+                AND   smza.mem_id = ${mem_id}
+              ) AS zzim_yn
+            `
         ])
         .where('del_yn = :del_yn', { del_yn: 'N' })
         .andWhere('view_yn = :view_yn', { view_yn: 'Y' })
-        .setParameter('mem_id', mem_id);
       
       if (big_category) {
         queryBuilder.andWhere('big_category = :big_category', { big_category });
@@ -59,6 +68,7 @@ export class ProductAppService {
         code: COMMON_RESPONSE_CODES.SUCCESS
       };
     } catch (error) {
+      console.error('Error fetching product app list:', error);
       throw new HttpException(
         {
           success: false,
@@ -151,6 +161,60 @@ export class ProductAppService {
       return {
         success: true,
         data: thumbnailImg,
+        code: COMMON_RESPONSE_CODES.SUCCESS
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message: error.message,
+          code: COMMON_RESPONSE_CODES.FAIL
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async getProductDetailAppList(getProductDetailAppListDto: GetProductDetailAppListDto): Promise<{ success: boolean; data: ProductDetailAppResponse[] | null; code: string }> {
+    try {
+      const { product_app_id } = getProductDetailAppListDto;
+      
+      const productDetailAppList = await this.productAppRepository
+        .createQueryBuilder('pa')
+        .select([
+          'pa.product_app_id AS product_app_id',
+          'pa.brand_name AS brand_name',
+          'pa.product_name AS product_name',
+          'pa.price AS price',
+          'pa.original_price AS original_price',
+          'pa.discount AS discount',
+          'pa.give_point AS give_point',
+          'pa.sell_start_dt AS sell_start_dt',
+          'pa.sell_end_dt AS sell_end_dt',
+          'pda.product_detail_app_id AS product_detail_app_id',
+          'pda.option_type AS option_type',
+          'pda.option_amount AS option_amount',
+          'pda.option_unit AS option_unit',
+          'pda.option_gender AS option_gender',
+          'pda.quantity AS quantity'
+        ])
+        .leftJoin('product_detail_app', 'pda', 'pa.product_app_id = pda.product_app_id')
+        .where('pda.del_yn = :del_yn', { del_yn: 'N' })
+        .andWhere('pda.use_yn = :use_yn', { use_yn: 'Y' })
+        .andWhere('pa.product_app_id = :product_app_id', { product_app_id })
+        .getRawMany();
+
+      if (!productDetailAppList || productDetailAppList.length === 0) {
+        return {
+          success: true,
+          data: null,
+          code: COMMON_RESPONSE_CODES.NO_DATA
+        };
+      }
+
+      return {
+        success: true,
+        data: productDetailAppList,
         code: COMMON_RESPONSE_CODES.SUCCESS
       };
     } catch (error) {

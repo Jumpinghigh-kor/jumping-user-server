@@ -18,15 +18,17 @@ export class MemberExerciseService {
       const { 
         mem_id, 
         exercise_dt, 
-        exercise_time, 
-        intensity_level, 
-        heart_rate, 
+        jumping_exercise_time, 
+        jumping_intensity_level, 
+        jumping_heart_rate,
+        other_exercise_type,
+        other_exercise_time,
+        other_exercise_calory,
         reg_dt, 
         reg_id, 
         mod_dt, 
         mod_id 
       } = insertMemberExerciseDto;
-      
       // Using the provided SQL query with QueryBuilder
       await this.dataSource
         .createQueryBuilder()
@@ -35,9 +37,12 @@ export class MemberExerciseService {
         .values({
           mem_id,
           exercise_dt,
-          exercise_time,
-          intensity_level,
-          heart_rate: heart_rate === null || heart_rate === undefined ? undefined : heart_rate,
+          jumping_exercise_time,
+          jumping_intensity_level,
+          jumping_heart_rate: jumping_heart_rate === null || jumping_heart_rate === undefined ? undefined : jumping_heart_rate,
+          other_exercise_type,
+          other_exercise_time,
+          other_exercise_calory,
           reg_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
           reg_id,
           mod_dt,
@@ -67,25 +72,29 @@ export class MemberExerciseService {
       const { 
         exercise_id,
         mem_id,
-        exercise_time, 
-        intensity_level, 
-        heart_rate
+        jumping_exercise_time, 
+        jumping_intensity_level,
+        jumping_heart_rate,
+        other_exercise_type,
+        other_exercise_time,
+        other_exercise_calory
       } = updateMemberExerciseDto;
 
       // 필드 값 설정
       const updateFields = {
-        exercise_time,
-        intensity_level,
+        jumping_exercise_time,
+        jumping_intensity_level,
+        other_exercise_type,
+        other_exercise_time,
+        other_exercise_calory,
         mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
         mod_id: mem_id
       };
-      
-      // heart_rate 필드가 null 또는 undefined가 아닌 경우에만 추가
-      if (heart_rate !== null && heart_rate !== undefined) {
-        updateFields['heart_rate'] = heart_rate;
+
+      if(jumping_heart_rate !== null && jumping_heart_rate !== undefined) {
+        updateFields['jumping_heart_rate'] = jumping_heart_rate;
       } else {
-        // 명시적으로 null로 설정
-        updateFields['heart_rate'] = null;
+        updateFields['jumping_heart_rate'] = null;
       }
       
       // Using the provided SQL query with QueryBuilder
@@ -131,9 +140,12 @@ export class MemberExerciseService {
           'exercise_id',
           'mem_id',
           'exercise_dt',
-          'exercise_time',
-          'intensity_level',
-          'heart_rate'
+          'jumping_exercise_time',
+          'jumping_intensity_level',
+          'jumping_heart_rate',
+          'other_exercise_type',
+          'other_exercise_time',
+          'other_exercise_calory'
         ])
         .where('me.mem_id = :mem_id', { mem_id })
         .andWhere('me.exercise_dt = :exercise_dt', { exercise_dt })
@@ -166,7 +178,7 @@ export class MemberExerciseService {
 
   async getMemberExerciseList(getMemberExerciseListDto: GetMemberExerciseListDto): Promise<{ success: boolean; data: MemberExerciseListResponse[] | null; code: string }> {
     try {
-      const { mem_id, year_month, category_dt } = getMemberExerciseListDto;
+      const { mem_id, year_month, period } = getMemberExerciseListDto;
       
       // 기본 쿼리 빌더
       const queryBuilder = this.memberExerciseRepository
@@ -175,25 +187,26 @@ export class MemberExerciseService {
           'exercise_id',
           'mem_id',
           'exercise_dt',
-          'exercise_time',
-          'intensity_level',
-          'heart_rate'
+          'jumping_exercise_time',
+          'jumping_intensity_level',
+          'jumping_heart_rate',
+          'other_exercise_type',
+          'other_exercise_time',
+          'other_exercise_calory'
         ])
         .where('me.mem_id = :mem_id', { mem_id });
       
       // all_date가 true이면 모든 날짜 데이터 조회 (추가 조건 없음)
       if (year_month === 'all_date') {
         // 모든 날짜 데이터를 조회하므로 추가 조건 없음
-      }
-      // category_dt에 따라 조건 분기
-      else if (category_dt) {
+      } else if (period) {
         // 현재 날짜 자동으로 구하기
         const now = new Date();
         const currentYear = now.getFullYear();
         const currentMonth = now.getMonth() + 1; // 0-11이므로 +1
         const currentDay = now.getDate();
         
-        switch(category_dt) {
+        switch(period) {
           case 'day':
             // day는 기본 조건 (year_month로 필터링)
             if (year_month) {
@@ -256,7 +269,7 @@ export class MemberExerciseService {
       // 결과를 category_dt에 맞게 추가 가공
       let processedData = exerciseList;
       
-      if (category_dt === 'week' || category_dt === 'month' || category_dt === 'year') {
+      if (period === 'week' || period === 'month' || period === 'year') {
         // 데이터 그룹화 및 요약 로직을 여기에 추가할 수 있음
         // 예: 주별/월별/연별 합계 또는 평균을 계산
       }

@@ -6,17 +6,21 @@ export class GetProductAppListDto {
   @IsString()
   big_category?: string;
 
-  @IsNotEmpty()
-  @Transform(({ value }) => Number(value))
-  mem_id: number;
+  @IsOptional()
+  @IsNumber()
+  @Transform(({ value }) => value ? parseInt(value) : undefined)
+  mem_id?: number;
 }
 
 export interface ProductAppListResponse {
   product_app_id: number;
-  product_app_type: string;
+  big_category: string;
+  small_category: string;
+  brand_name: string;
+  product_name: string;
   title: string;
-  price: number;
-  original_price: number;
+  price: string;
+  original_price: string;
   discount: number;
   give_point: number;
   sell_start_dt: string;
@@ -24,15 +28,14 @@ export interface ProductAppListResponse {
   view_yn: string;
   del_yn: string;
   reg_dt: string;
-  reg_id: string;
+  reg_id: number;
   mod_dt: string;
-  mod_id: string;
+  mod_id: number;
 }
 
 export class GetProductAppImgDetailDto {
-  @IsNotEmpty()
   @IsNumber()
-  @Transform(({ value }) => parseInt(value))
+  @Transform(({ value }) => value ? parseInt(value) : undefined)
   product_app_id: number;
 }
 
@@ -45,13 +48,38 @@ export interface ProductAppImgDetailResponse {
 }
 
 export class SelectProductAppThumbnailImgDto {
-
+  // No specific parameters needed
 }
 
 export interface ProductAppThumbnailImgResponse {
   file_name: string;
   file_division: string;
   file_path: string;
+  product_app_id: number;
   img_form: string;
   order_seq: number;
+}
+
+export class GetProductDetailAppListDto {
+  @IsNumber()
+  @Transform(({ value }) => value ? parseInt(value) : undefined)
+  product_app_id: number;
+}
+
+export interface ProductDetailAppResponse {
+  brand_name: string;
+  product_name: string;
+  price: string;
+  original_price: string;
+  discount: number;
+  give_point: number;
+  sell_start_dt: string;
+  sell_end_dt: string;
+  product_app_id: number;
+  product_detail_app_id: number;
+  option_type: string;
+  option_amount: number;
+  option_unit: string;
+  option_gender: string;
+  quantity: number;
 }

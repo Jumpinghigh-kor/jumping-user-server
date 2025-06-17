@@ -55,7 +55,6 @@ export class MemberZzimAppService {
   async updateMemberZzimApp(updateMemberZzimAppDto: UpdateMemberZzimAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
       const { zzim_app_id, mem_id, zzim_yn } = updateMemberZzimAppDto;
-      console.log(zzim_app_id, mem_id, zzim_yn);
       // 현재 시간 (YYYYMMDDHHIISS 형식)
       const mod_dt = getCurrentDateYYYYMMDDHHIISS();
       
@@ -149,18 +148,24 @@ export class MemberZzimAppService {
     try {
       const { mem_id, product_app_id } = getMemberZzimAppDetailDto;
       
-      const zzimDetail = await this.dataSource.manager
+      const zzipDetail = await this.dataSource.manager
         .createQueryBuilder()
         .select([
           'mza.zzim_app_id AS zzim_app_id',
-          'mza.zzim_yn AS zzim_yn'
+          'mza.mem_id AS mem_id',
+          'mza.product_app_id AS product_app_id',
+          'mza.zzim_yn AS zzim_yn',
+          'mza.reg_dt AS reg_dt',
+          'mza.mod_dt AS mod_dt'
         ])
         .from('member_zzim_app', 'mza')
         .where('mza.mem_id = :mem_id', { mem_id })
         .andWhere('mza.product_app_id = :product_app_id', { product_app_id })
+        .orderBy('mza.mod_dt', 'DESC')
+        .limit(1)
         .getRawOne();
 
-      if (!zzimDetail) {
+      if (!zzipDetail) {
         return {
           success: true,
           data: null,
@@ -170,11 +175,11 @@ export class MemberZzimAppService {
 
       return {
         success: true,
-        data: zzimDetail,
+        data: zzipDetail,
         code: COMMON_RESPONSE_CODES.SUCCESS
       };
     } catch (error) {
-      console.error('Error fetching zzim detail:', error);
+      console.error('Error fetching zzip detail:', error);
       return {
         success: false,
         data: null,

@@ -1,6 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { CommonCodeService } from './common-code.service';
-import { InsertCommonFileDto } from './dto/common-code.dto';
+import { InsertCommonFileDto, DeleteCommonFileDto } from './dto/common-code.dto';
 
 @Controller('common-code')
 export class CommonCodeController {
@@ -11,6 +11,13 @@ export class CommonCodeController {
     @Body() insertCommonFileDto: InsertCommonFileDto
   ): Promise<{ success: boolean; message: string; code: string }> {
     return this.commonCodeService.insertCommonFile(insertCommonFileDto);
+  }
+
+  @Post('deleteCommonFile')
+  async deleteCommonFile(
+    @Body() deleteCommonFileDto: DeleteCommonFileDto
+  ): Promise<{ success: boolean; message: string; code: string }> {
+    return this.commonCodeService.deleteCommonFile(deleteCommonFileDto.file_id, deleteCommonFileDto.mem_id);
   }
 
   @Post('getCommonCodeList')

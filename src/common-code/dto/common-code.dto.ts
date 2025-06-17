@@ -1,4 +1,5 @@
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class InsertCommonFileDto {
   @IsNotEmpty()
@@ -34,6 +35,16 @@ export class InsertCommonFileDto {
   @IsOptional()
   @IsNumber()
   mod_id: number;
+}
+
+export class DeleteCommonFileDto {
+  @IsNotEmpty()
+  @Transform(({ value }) => Number(value))
+  file_id: number;
+
+  @IsNotEmpty()
+  @Transform(({ value }) => Number(value))
+  mem_id: number;
 }
 
 export class CommonDto {

@@ -20,41 +20,49 @@ export class MemberScheduleAppService {
       const schedules = await this.dataSource
         .createQueryBuilder()
         .select([
-          'sch_id',
-          'sch_time',
-          'sch_max_cap',
-          'sch_info',
-          `(
-            SELECT
-              COUNT(*)
-            FROM  members sm
-            WHERE sm.mem_sch_id = s.sch_id
-            AND   sm.mem_app_status = 'ACTIVE'
-            AND   sm.center_id = :center_id
-          ) as mem_total_sch_cnt`,
-          `(
-            SELECT
-              sm.mem_sch_id
-            FROM  members sm
-            WHERE sm.mem_sch_id = s.sch_id
-            AND   sm.mem_id = :mem_id
-          ) AS mem_sch_id`,
-          `(
-            SELECT
-              COUNT(*)
-            FROM  member_schedule_app smsa
-            WHERE smsa.basic_sch_id = s.sch_id
-            AND   smsa.sch_dt = :sch_dt
-            AND   smsa.del_yn = 'N'
-          ) as mem_basic_sch_cnt`,
-          `(
-            SELECT
-              COUNT(*)
-            FROM  member_schedule_app smsa
-            WHERE smsa.sch_id = s.sch_id
-            AND   smsa.sch_dt = :sch_dt
-            AND   smsa.del_yn = 'N'
-          ) as mem_change_sch_cnt`
+          'sch_id'
+          , 'sch_time'
+          , 'sch_max_cap'
+          , 'sch_info'
+          , `(
+              SELECT
+                COUNT(*)
+              FROM  members sm
+              WHERE sm.mem_sch_id = s.sch_id
+              AND   sm.mem_app_status = 'ACTIVE'
+              AND   sm.center_id = :center_id
+          ) as mem_total_sch_cnt`
+          , `(
+              SELECT
+                sm.mem_sch_id
+              FROM  members sm
+              WHERE sm.mem_sch_id = s.sch_id
+              AND   sm.mem_id = :mem_id
+            ) AS mem_sch_id`
+          , `(
+              SELECT
+                COUNT(*)
+              FROM  members sm
+              WHERE sm.mem_sch_id = s.sch_id
+              AND   sm.mem_app_status = 'ACTIVE'
+              AND   sm.center_id = :center_id
+            ) AS mem_total_sch_cnt`
+          , `(
+              SELECT
+                COUNT(*)
+              FROM  member_schedule_app smsa
+              WHERE smsa.original_sch_id = s.sch_id
+              AND   smsa.sch_dt = :sch_dt
+              AND   smsa.del_yn = 'N'
+            ) AS mem_basic_sch_cnt`
+          , `(
+              SELECT
+                COUNT(*)
+              FROM  member_schedule_app smsa
+              WHERE smsa.reservation_sch_id = s.sch_id
+              AND   smsa.sch_dt = :sch_dt
+              AND   smsa.del_yn = 'N'
+            ) AS mem_change_sch_cnt`
         ])
         .from('schedule', 's')
         .where('s.center_id = :center_id', { center_id, mem_id, sch_dt })
@@ -93,21 +101,23 @@ export class MemberScheduleAppService {
       const schedules = await this.dataSource
         .createQueryBuilder()
         .select([
-          'sch_app_id',
-          'mem_id',
-          'sch_id',
-          'sch_dt',
-          'del_yn',
-          'reg_dt',
-          'reg_id',
-          'mod_dt',
-          'mod_id',
-          `(
-            SELECT
-              ss.sch_time
-            FROM  schedule ss
-            WHERE ss.sch_id = msa.sch_id
-          ) as sch_time`,
+          'sch_app_id'
+          , 'mem_id'
+          , 'original_sch_id'
+          , 'reservation_sch_id'
+          , 'sch_dt'
+          , 'agree_yn'
+          , 'del_yn'
+          , 'reg_dt'
+          , 'reg_id'
+          , 'mod_dt'
+          , 'mod_id'
+          , `(
+              SELECT
+                ss.sch_time
+              FROM  schedule ss
+              WHERE ss.sch_id = msa.reservation_sch_id
+          ) AS sch_time`
         ])
         .from('member_schedule_app', 'msa')
         .where('msa.mem_id = :mem_id', { mem_id })
@@ -148,7 +158,7 @@ export class MemberScheduleAppService {
 
   async insertMemberScheduleApp(insertMemberScheduleDto: InsertMemberScheduleAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { mem_id, sch_id, sch_dt, basic_sch_id } = insertMemberScheduleDto;
+      const { mem_id, reservation_sch_id, sch_dt, original_sch_id, center_id, mem_name } = insertMemberScheduleDto;
       
       // 현재 시간 (YYYYMMDDHHIISS 형식)
       const currentDate = getCurrentDateYYYYMMDDHHIISS();
@@ -160,12 +170,40 @@ export class MemberScheduleAppService {
         .into('member_schedule_app')
         .values({
           mem_id: mem_id,
-          sch_id: sch_id,
-          basic_sch_id: basic_sch_id,
+          original_sch_id: original_sch_id,
+          reservation_sch_id: reservation_sch_id,
           sch_dt: sch_dt,
+          agree_yn: null,
           del_yn: 'N',
           reg_dt: currentDate,
           reg_id: mem_id
+        })
+        .execute();
+      
+      // sch_dt를 yyyy년 mm월 dd일 형식으로 변환하는 함수
+      const formatDate = (dateStr: string) => {
+        if (dateStr && dateStr.length === 8) {
+          const year = dateStr.substring(0, 4);
+          const month = dateStr.substring(4, 6);
+          const day = dateStr.substring(6, 8);
+          return `${year}년 ${month}월 ${day}일`;
+        }
+        return dateStr;
+      };
+
+      // 알림 테이블에 insert
+      await this.dataSource
+        .createQueryBuilder()
+        .insert()
+        .into('notifications')
+        .values({
+          not_user_id: center_id,
+          not_type: '예약 시간 등록 알림',
+          not_title: '예약 시간 등록 알림',
+          not_message: mem_name + '님이 ' + formatDate(sch_dt) + '에 예약을 하였습니다. 수락할지 거절할지 결정해주세요.',
+          not_is_read: '0',
+          not_created_at: () => "NOW()",
+          not_read_at: null
         })
         .execute();
       
@@ -190,9 +228,36 @@ export class MemberScheduleAppService {
   async deleteMemberScheduleApp(deleteMemberScheduleAppDto: DeleteMemberScheduleAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
       const { sch_app_id, mem_id } = deleteMemberScheduleAppDto;
-      console.log(sch_app_id);
       // 현재 시간 (YYYYMMDDHHIISS 형식)
       const currentDate = getCurrentDateYYYYMMDDHHIISS();
+      
+      // sch_dt를 yyyy년 mm월 dd일 형식으로 변환하는 함수
+      const formatDate = (dateStr: string) => {
+        if (dateStr && dateStr.length === 8) {
+          const year = dateStr.substring(0, 4);
+          const month = dateStr.substring(4, 6);
+          const day = dateStr.substring(6, 8);
+          return `${year}년 ${month}월 ${day}일`;
+        }
+        return dateStr;
+      };
+
+      // 삭제 전에 스케줄 정보를 조회 (알림 생성용)
+      let scheduleIds: number[] = Array.isArray(sch_app_id) ? sch_app_id : [sch_app_id];
+      
+      const scheduleInfos = await this.dataSource
+        .createQueryBuilder()
+        .select([
+          'msa.sch_app_id'
+          , 'msa.sch_dt'
+          , 'm.mem_name'
+          , 'm.center_id'
+        ])
+        .from('member_schedule_app', 'msa')
+        .leftJoin('members', 'm', 'm.mem_id = msa.mem_id')
+        .where('msa.sch_app_id IN (:...scheduleIds)', { scheduleIds })
+        .andWhere('msa.del_yn = :del_yn', { del_yn: 'N' })
+        .getRawMany();
       
       let result;
       
@@ -230,6 +295,24 @@ export class MemberScheduleAppService {
           code: COMMON_RESPONSE_CODES.NO_DATA
         };
       }
+
+      // 각 삭제된 스케줄에 대해 알림 생성
+      for (const scheduleInfo of scheduleInfos) {
+        await this.dataSource
+          .createQueryBuilder()
+          .insert()
+          .into('notifications')
+          .values({
+            not_user_id: scheduleInfo.center_id,
+            not_type: '예약 시간 취소 알림',
+            not_title: '예약 시간 취소 알림',
+            not_message: scheduleInfo.mem_name + '님이 ' + formatDate(scheduleInfo.sch_dt) + '에 예약을 취소하였습니다.',
+            not_is_read: '0',
+            not_created_at: () => "NOW()",
+            not_read_at: null
+          })
+          .execute();
+      }
       
       return {
         success: true,
@@ -251,7 +334,7 @@ export class MemberScheduleAppService {
 
   async updateMemberScheduleApp(updateMemberScheduleAppDto: UpdateMemberScheduleAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { sch_app_id, sch_id, mem_id } = updateMemberScheduleAppDto;
+      const { sch_app_id, reservation_sch_id, mem_id, center_id, mem_name, sch_dt } = updateMemberScheduleAppDto;
       
       // 현재 시간 (YYYYMMDDHHIISS 형식)
       const currentDate = getCurrentDateYYYYMMDDHHIISS();
@@ -261,7 +344,7 @@ export class MemberScheduleAppService {
         .createQueryBuilder()
         .update('member_schedule_app')
         .set({
-          sch_id: sch_id,
+          reservation_sch_id: reservation_sch_id,
           mod_dt: currentDate,
           mod_id: mem_id
         })
@@ -275,6 +358,33 @@ export class MemberScheduleAppService {
           code: COMMON_RESPONSE_CODES.NO_DATA
         };
       }
+
+      // sch_dt를 yyyy년 mm월 dd일 형식으로 변환하는 함수
+      const formatDate = (dateStr: string) => {
+        if (dateStr && dateStr.length === 8) {
+          const year = dateStr.substring(0, 4);
+          const month = dateStr.substring(4, 6);
+          const day = dateStr.substring(6, 8);
+          return `${year}년 ${month}월 ${day}일`;
+        }
+        return dateStr;
+      };
+
+      // 알림 테이블에 insert
+      await this.dataSource
+        .createQueryBuilder()
+        .insert()
+        .into('notifications')
+        .values({
+          not_user_id: center_id,
+          not_type: '예약 시간 변경 알림',
+          not_title: '예약 시간 변경 알림',
+          not_message: mem_name + '님이 ' + formatDate(sch_dt) + '에 예약을 변경하였습니다. 수락할지 거절할지 결정해주세요.',
+          not_is_read: '0',
+          not_created_at: () => "NOW()",
+          not_read_at: null
+        })
+        .execute();
       
       return {
         success: true,

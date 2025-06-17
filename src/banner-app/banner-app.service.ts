@@ -13,13 +13,10 @@ export class BannerAppService {
   ) {}
 
   async selectBannerAppInfo(params: any): Promise<BannerAppResponse> {
-    try {
-      console.log('Received params:', params);
-      
+    try {      
       // 파라미터에서 banner_locate 추출
       const bannerLocate = params.banner_locate || params.bannerLocate;
       
-      console.log('bannerLocate', bannerLocate);
       const result = await this.bannerAppRepository
         .createQueryBuilder('ba')
         .leftJoinAndSelect('common_file', 'cf', 'ba.file_id = cf.file_id')

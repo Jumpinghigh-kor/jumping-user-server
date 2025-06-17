@@ -21,31 +21,57 @@ export class MemberService {
       const memberInfo = await this.memberRepository
         .createQueryBuilder('m')
         .select([
-          'mem_id',
-          'mem_name',
-          'mem_nickname',
-          'mem_phone',
-          'mem_birth',
-          'mem_gender',
-          'mem_checkin_number',
-          'mem_manager',
-          'mem_sch_id',
-          'mem_email_id',
-          'mem_app_password',
-          'mem_app_status',
-          'center_id',
-          `(
-            SELECT
-              center_name
-            FROM  centers
-            WHERE center_id = m.center_id
-          ) AS center_name`,
-          `(
-            SELECT
-              ss.sch_time
-            FROM  schedule ss
-            WHERE ss.sch_id = m.mem_sch_id
-          ) AS sch_time`
+          'mem_id'
+          , 'mem_name'
+          , 'mem_nickname'
+          , 'mem_phone'
+          , 'mem_birth'
+          , 'mem_gender'
+          , 'mem_checkin_number'
+          , 'mem_manager'
+          , 'mem_sch_id'
+          , 'mem_email_id'
+          , 'mem_app_password'
+          , 'mem_app_status'
+          , 'center_id'
+          , `
+              (
+                SELECT
+                  center_name
+                FROM  centers
+                WHERE center_id = m.center_id
+            ) AS center_name`
+          , `
+              (
+                SELECT
+                  ss.sch_time
+                FROM  schedule ss
+                WHERE ss.sch_id = m.mem_sch_id
+              ) AS sch_time
+            `
+          , `
+              (
+                SELECT
+                  FORMAT(SUM(point_add) - SUM(point_minus), 0)
+                FROM      member_point_app smpa
+                LEFT JOIN member_order_app moa ON smpa.order_app_id = moa.order_app_id
+                WHERE     smpa.mem_id = m.mem_id
+                AND       smpa.del_yn = 'N'
+                AND       moa.order_status = 'PURCHASE_COMPLETE'
+              ) AS total_point
+            `
+          , `
+              (
+                SELECT
+                  COUNT(*)
+                FROM      member_coupon_app smca
+                LEFT JOIN coupon_app sca ON smca.coupon_app_id = sca.coupon_app_id
+                WHERE     sca.del_yn = 'N'
+                AND       smca.use_yn = 'N'
+                AND       smca.mem_id = m.mem_id
+                AND       DATE_FORMAT(NOW(), '%Y%m%d%H%i%s') <= sca.end_dt
+              ) AS coupon_cnt
+            `
         ])
         .where('mem_id = :mem_id', { mem_id })
         .getRawOne();
@@ -149,8 +175,6 @@ export class MemberService {
 
   async checkNicknameDuplicate(mem_nickname: string): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      console.log('Checking nickname:', mem_nickname);
-      
       // 테이블과 별칭을 일관되게 사용
       const existingMember = await this.memberRepository
         .createQueryBuilder()
@@ -294,6 +318,84 @@ export class MemberService {
       };
     } catch (error) {
       console.error('Error finding password:', error);
+      throw new HttpException(
+        {
+          success: false,
+          message: error.message,
+          code: COMMON_RESPONSE_CODES.FAIL
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async updatePushToken(mem_id: number, push_token: string): Promise<{ success: boolean; message: string; code: string }> {
+    try {
+      const result = await this.memberRepository
+        .createQueryBuilder()
+        .update('members')
+        .set({
+          push_token: push_token,
+          app_mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
+          app_mod_id: mem_id
+        })
+        .where("mem_id = :mem_id", { mem_id })
+        .execute();
+      
+      if (result.affected === 0) {
+        return {
+          success: false,
+          message: '업데이트할 회원을 찾을 수 없습니다.',
+          code: COMMON_RESPONSE_CODES.NO_DATA
+        };
+      }
+
+      return {
+        success: true,
+        message: 'Push token이 성공적으로 업데이트되었습니다.',
+        code: COMMON_RESPONSE_CODES.SUCCESS
+      };
+    } catch (error) {
+      console.error('Error updating push token:', error);
+      throw new HttpException(
+        {
+          success: false,
+          message: error.message,
+          code: COMMON_RESPONSE_CODES.FAIL
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async updatePushYn(mem_id: number, push_yn: string): Promise<{ success: boolean; message: string; code: string }> {
+    try {
+      const result = await this.memberRepository
+        .createQueryBuilder()
+        .update('members')
+        .set({
+          push_yn,
+          app_mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
+          app_mod_id: mem_id
+        })
+        .where("mem_id = :mem_id", { mem_id })
+        .execute();
+      
+      if (result.affected === 0) {
+        return {
+          success: false,
+          message: '업데이트할 회원을 찾을 수 없습니다.',
+          code: COMMON_RESPONSE_CODES.NO_DATA
+        };
+      }
+
+      return {
+        success: true,
+        message: 'Push 수신 여부가 성공적으로 업데이트되었습니다.',
+        code: COMMON_RESPONSE_CODES.SUCCESS
+      };
+    } catch (error) {
+      console.error('Error updating push yn:', error);
       throw new HttpException(
         {
           success: false,

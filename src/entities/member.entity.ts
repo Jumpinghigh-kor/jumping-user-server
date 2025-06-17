@@ -34,4 +34,12 @@ export class Member {
 
   @Column({ nullable: true })
   mem_nickname: string;
+
+  // Push 토큰
+  @Column({ name: 'push_token', nullable: true })
+  push_token: string;
+
+  // Push 수신 여부
+  @Column({ name: 'push_yn', nullable: true, default: 'Y' })
+  push_yn: string;
 } 

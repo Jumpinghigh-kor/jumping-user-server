@@ -65,13 +65,16 @@ export class CheckinLogService {
       checkinLog.ci_mem_id = mem_id;
       checkinLog.ci_date = new Date();
       checkinLog.center_id = center_id;
+      checkinLog.del_yn = 'N';
 
       await queryRunner.manager.save(checkinLog);
 
       // 회차권인 경우 잔여 횟수 감소
       if (pro_type === '회차권') {
         await queryRunner.manager.query(
-          'UPDATE member_orders SET memo_remaining_counts = memo_remaining_counts - 1 WHERE memo_id = ?',
+          `UPDATE member_orders SET
+            memo_remaining_counts = memo_remaining_counts - 1
+            WHERE memo_id = ?`,
           [memo_id]
         );
       }
@@ -107,6 +110,7 @@ export class CheckinLogService {
           "DATE_FORMAT(checkin_log.ci_date, '%H:%i:%s') AS ci_time_only"
         ])
         .where('checkin_log.ci_mem_id = :mem_id', { mem_id: Number(mem_id) })
+        .andWhere('checkin_log.del_yn = "N"')
         .andWhere("DATE_FORMAT(checkin_log.ci_date, '%Y') = :year", { year: String(year) })
         .andWhere("DATE_FORMAT(checkin_log.ci_date, '%m') = :month", { month: String(month).padStart(2, '0') });
 

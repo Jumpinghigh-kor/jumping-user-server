@@ -24,7 +24,7 @@ export class MemberZzimAppController {
   }
 
   @Post('getMemberZzimAppDetail')
-  getMemberZzimAppDetail(@Body() getMemberZzimAppDetailDto: GetMemberZzimAppDetailDto) {
+  getMemberZzipAppDetail(@Body() getMemberZzimAppDetailDto: GetMemberZzimAppDetailDto) {
     return this.memberZzimAppService.getMemberZzimAppDetail(getMemberZzimAppDetailDto);
   }
 } 

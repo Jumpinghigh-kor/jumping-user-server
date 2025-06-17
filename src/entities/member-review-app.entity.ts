@@ -4,6 +4,15 @@ import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 export class MemberReviewApp {
   @PrimaryGeneratedColumn()
   review_app_id: number;
+  
+  @Column()
+  product_detail_app_id: number;
+
+  @Column()
+  mem_id: number;
+
+  @Column()
+  title: string;
 
   @Column({ type: 'text' })
   content: string;
@@ -14,27 +23,18 @@ export class MemberReviewApp {
   @Column({ length: 1, default: 'N' })
   del_yn: string;
 
-  @Column()
-  reg_dt: Date;
+  @Column({ length: 1, default: 'N' })
+  admin_del_yn: string;
 
   @Column()
-  reg_id: string;
+  reg_dt: string;
 
   @Column()
-  product_app_id: number;
-
-  @Column()
-  mem_id: number;
+  reg_id: number;
 
   @Column({ nullable: true })
-  mod_dt: Date;
+  mod_dt: string;
 
   @Column({ nullable: true })
-  mod_id: string;
-
-  @Column({ nullable: true })
-  review_cnt: number;
-
-  @Column({ nullable: true })
-  avg_star_point: number;
+  mod_id: number;
 } 

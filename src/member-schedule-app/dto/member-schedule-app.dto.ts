@@ -28,15 +28,23 @@ export class InsertMemberScheduleAppDto {
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  sch_id: number;
+  reservation_sch_id: number;
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  basic_sch_id: number;
+  original_sch_id: number;
 
   @IsNotEmpty()
   @IsString()
   sch_dt: string;
+
+  @IsNotEmpty()
+  @Transform(({ value }) => Number(value))
+  center_id: number;
+
+  @IsOptional()
+  @IsString()
+  mem_name: string;
 }
 
 export class DeleteMemberScheduleAppDto {
@@ -61,11 +69,23 @@ export class UpdateMemberScheduleAppDto {
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  sch_id: number;
+  reservation_sch_id: number;
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
   mem_id: number;
+
+  @IsNotEmpty()
+  @Transform(({ value }) => Number(value))
+  center_id: number;
+
+  @IsOptional()
+  @IsString()
+  mem_name: string;
+
+  @IsNotEmpty()
+  @IsString()
+  sch_dt: string;
 }
 
 export interface MemberScheduleResponse {

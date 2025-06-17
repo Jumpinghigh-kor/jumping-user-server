@@ -15,6 +15,9 @@ export class CheckinLog {
   @Column({ type: 'datetime' })
   ci_date: Date;
 
+  @Column({ default: 'N' })
+  del_yn: string;
+
   @ManyToOne(() => Member)
   @JoinColumn({ name: 'ci_mem_id', referencedColumnName: 'mem_id' })
   member: Member;

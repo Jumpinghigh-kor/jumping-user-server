@@ -32,6 +32,12 @@ import { CommonCodeModule } from './common-code/common-code.module';
 import { MemberZzimAppModule } from './member-zzim-app/member-zzim-app.module';
 import { MemberSearchAppModule } from './member-search-app/member-search-app.module';
 import { MemberShippingAddressModule } from './member-shipping-address/member-shipping-address.module';
+import { MemberExerciseGoalModule } from './member-exercise-goal/member-exercise-goal.module';
+import { MemberCartAppModule } from './member-cart-app/member-cart-app.module';
+import { MemberCartApp } from './member-cart-app/dto/member-cart-app.dto';
+import { MemberPointAppModule } from './member-point-app/member-point-app.module';
+import { MemberCouponAppModule } from './member-coupon-app/member-coupon-app.module';
+import { NoticesShoppingAppModule } from './notices-shopping-app/notices-shopping-app.module';
 
 @Module({
   imports: [
@@ -45,7 +51,7 @@ import { MemberShippingAddressModule } from './member-shipping-address/member-sh
       username: process.env.DB_USERNAME || 'root',
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_DATABASE || 'jumping',
-      entities: [Member, CheckinLog, MemberExercise, Notice, NoticesApp, InquiryApp, RefreshToken, BannerApp, ProductApp, MemberReviewApp, MemberSchedule],
+      entities: [Member, CheckinLog, MemberExercise, Notice, NoticesApp, InquiryApp, RefreshToken, BannerApp, ProductApp, MemberReviewApp, MemberSchedule, MemberCartApp],
       synchronize: false, // 데이터 보존을 위해 false로 설정
     }),
     AuthModule,
@@ -54,6 +60,7 @@ import { MemberShippingAddressModule } from './member-shipping-address/member-sh
     MemberOrdersModule,
     MemberModule,
     MemberExerciseModule,
+    MemberExerciseGoalModule,
     NoticesAppModule,
     InquiryAppModule,
     UpdateLogAppModule,
@@ -65,7 +72,11 @@ import { MemberShippingAddressModule } from './member-shipping-address/member-sh
     CommonCodeModule,
     MemberZzimAppModule,
     MemberSearchAppModule,
-    MemberShippingAddressModule
+    MemberShippingAddressModule,
+    MemberCartAppModule,
+    MemberPointAppModule,
+    MemberCouponAppModule,
+    NoticesShoppingAppModule
   ],
   controllers: [AppController],
   providers: [AppService],

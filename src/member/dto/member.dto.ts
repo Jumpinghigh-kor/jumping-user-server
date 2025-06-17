@@ -35,6 +35,26 @@ export class FindPasswordDto {
   mem_email_id: string;
 }
 
+export class UpdatePushTokenDto {
+  @IsNotEmpty()
+  @Transform(({ value }) => Number(value))
+  mem_id: number;
+
+  @IsNotEmpty()
+  @IsString()
+  push_token: string;
+}
+
+export class UpdatePushYnDto {
+  @IsNotEmpty()
+  @Transform(({ value }) => Number(value))
+  mem_id: number;
+
+  @IsNotEmpty()
+  @IsString()
+  push_yn: string;
+}
+
 export interface MemberInfoResponse {
   mem_id: number;
   mem_name: string;
@@ -47,4 +67,6 @@ export interface MemberInfoResponse {
   mem_email_id: string;
   mem_app_status: number;
   center_id: number;
+  total_point: number;
+  coupon_cnt: number;
 } 

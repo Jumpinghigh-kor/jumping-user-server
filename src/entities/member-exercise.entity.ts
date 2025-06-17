@@ -11,14 +11,23 @@ export class MemberExercise {
   @Column({ name: 'exercise_dt' })
   exercise_dt: string;
 
-  @Column({ name: 'exercise_time' })
-  exercise_time: string;
+  @Column({ name: 'jumping_exercise_time' })
+  jumping_exercise_time: string;
 
-  @Column({ name: 'intensity_level' })
-  intensity_level: string;
+  @Column({ name: 'jumping_intensity_level' })
+  jumping_intensity_level: string;
 
-  @Column({ name: 'heart_rate', nullable: true })
-  heart_rate: string;
+  @Column({ name: 'jumping_heart_rate', nullable: true })
+  jumping_heart_rate: string; 
+
+  @Column({ name: 'other_exercise_type' })
+  other_exercise_type: string;
+
+  @Column({ name: 'other_exercise_time' })
+  other_exercise_time: string;
+
+  @Column({ name: 'other_exercise_calory' })
+  other_exercise_calory: string;
 
   @Column({ name: 'reg_dt' })
   reg_dt: string;

@@ -9,15 +9,24 @@ export class InsertMemberExerciseDto {
   @IsNotEmpty()
   exercise_dt: string;
 
-  @IsNotEmpty()
-  exercise_time: string;
+  @IsOptional()
+  jumping_exercise_time?: string;
 
-  @IsNotEmpty()
-  intensity_level: string;
+  @IsOptional()
+  jumping_intensity_level?: string;
 
   @IsOptional()
   @Transform(({ value }) => value === undefined || value === null || value === '' ? null : String(value))
-  heart_rate?: string | null;
+  jumping_heart_rate?: string | null;
+
+  @IsOptional()
+  other_exercise_type?: string;
+
+  @IsOptional()
+  other_exercise_time?: string;
+
+  @IsOptional()
+  other_exercise_calory?: string;
 
   @IsNotEmpty()
   reg_dt: string;
@@ -43,15 +52,24 @@ export class UpdateMemberExerciseDto {
   @Transform(({ value }) => Number(value))
   mem_id: number;
 
-  @IsNotEmpty()
-  exercise_time: string;
+  @IsOptional()
+  jumping_exercise_time?: string;
 
-  @IsNotEmpty()
-  intensity_level: string;
+  @IsOptional()
+  jumping_intensity_level?: string;
 
   @IsOptional()
   @Transform(({ value }) => value === undefined || value === null || value === '' ? null : String(value))
-  heart_rate?: string | null;
+  jumping_heart_rate?: string | null;
+
+  @IsOptional()
+  other_exercise_type?: string;
+
+  @IsOptional()
+  other_exercise_time?: string;
+
+  @IsOptional()
+  other_exercise_calory?: string;
 }
 
 export class GetMemberExerciseInfoDto {
@@ -72,26 +90,29 @@ export class GetMemberExerciseListDto {
   year_month?: string;
 
   @IsOptional()
-  category_dt?: string;
-
-  @IsOptional()
-  all_date?: boolean;
+  period?: string;
 }
 
 export interface MemberExerciseInfoResponse {
   exercise_id: number;
   mem_id: number;
   exercise_dt: string;
-  exercise_time: string;
-  intensity_level: string;
-  heart_rate: string;
+  jumping_exercise_time: string;
+  jumping_intensity_level: string;
+  jumping_heart_rate: string;
+  other_exercise_type: string;
+  other_exercise_time: string;
+  other_exercise_calory: string;
 }
 
 export interface MemberExerciseListResponse {
   exercise_id: number;
   mem_id: number;
   exercise_dt: string;
-  exercise_time: string;
-  intensity_level: string;
-  heart_rate: string;
+  jumping_exercise_time: string;
+  jumping_intensity_level: string;
+  jumping_heart_rate: string;
+  other_exercise_type: string;
+  other_exercise_time: string;
+  other_exercise_calory: string;
 } 

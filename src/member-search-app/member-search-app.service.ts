@@ -88,12 +88,30 @@ export class MemberSearchAppService {
       }
 
       // 정렬 조건 추가
-      if(search_type === 'search_recommend') {
+      if(search_type === 'high_star') {
         queryBuilder.orderBy('review_average', 'DESC');
         queryBuilder.addOrderBy('review_cnt', 'DESC');
       }
+
+      if(search_type === 'low_star') {
+        queryBuilder.orderBy('review_average', 'ASC');
+        queryBuilder.addOrderBy('review_cnt', 'ASC');
+      }
+
+      if(search_type === 'high_price') {
+        queryBuilder.orderBy('price', 'DESC');
+        queryBuilder.addOrderBy('review_cnt', 'DESC');
+      }
+
+      if(search_type === 'low_price') {
+        queryBuilder.orderBy('price', 'ASC');
+        queryBuilder.addOrderBy('review_cnt', 'ASC');
+      }
+
+      if(search_type === 'new') {
+        queryBuilder.orderBy('product_app_id', 'DESC');
+      }
       
-      queryBuilder.addOrderBy('product_app_id', 'DESC');
       
       let products = [];
       try {

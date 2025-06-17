@@ -114,7 +114,6 @@ export class MemberImgFileService {
         code: COMMON_RESPONSE_CODES.SUCCESS
       };
     } catch (error) {
-      console.log(error.response.data);
       return {
         success: false,
         message: '회원 이미지 파일 정보 저장 중 오류가 발생했습니다.',
@@ -177,7 +176,6 @@ export class MemberImgFileService {
         code: COMMON_RESPONSE_CODES.SUCCESS
       };
     } catch (error: any) {
-      console.log(error.response.data);
       return {
         success: false,
         message: '회원 이미지 삭제 중 오류가 발생했습니다.',
