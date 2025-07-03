@@ -69,4 +69,7 @@ export interface MemberInfoResponse {
   center_id: number;
   total_point: number;
   coupon_cnt: number;
+  cart_cnt: number;
+  push_yn: string;
+  push_token: string;
 } 

@@ -1,7 +1,7 @@
 import { Controller, UseGuards, Post, Body } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { MemberShippingAddressService } from './member-shipping-address.service';
-import { GetMemberShippingAddressListDto, InsertMemberShippingAddressDto, UpdateMemberShippingAddressDto, DeleteMemberShippingAddressDto, UpdateDeliveryRequestDto } from './dto/member-shipping-address.dto';
+import { GetMemberShippingAddressListDto, InsertMemberShippingAddressDto, UpdateMemberShippingAddressDto, DeleteMemberShippingAddressDto, UpdateDeliveryRequestDto, UpdateSelectYnDto } from './dto/member-shipping-address.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('member-shipping-address')
@@ -48,5 +48,12 @@ export class MemberShippingAddressController {
     @Body() updateDeliveryRequestDto: UpdateDeliveryRequestDto
   ): Promise<{ success: boolean; message: string; code: string }> {
     return this.memberShippingAddressService.updateDeliveryRequest(updateDeliveryRequestDto);
+  }
+
+  @Post('updateSelectYn')
+  async updateSelectYn(
+    @Body() updateSelectYnDto: UpdateSelectYnDto
+  ): Promise<{ success: boolean; message: string; code: string }> {
+    return this.memberShippingAddressService.updateSelectYn(updateSelectYnDto);
   }
 } 

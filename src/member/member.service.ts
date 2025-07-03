@@ -31,9 +31,12 @@ export class MemberService {
           , 'mem_manager'
           , 'mem_sch_id'
           , 'mem_email_id'
+          , 'mem_role'
           , 'mem_app_password'
           , 'mem_app_status'
           , 'center_id'
+          , 'push_yn'
+          , 'push_token'
           , `
               (
                 SELECT
@@ -57,7 +60,8 @@ export class MemberService {
                 LEFT JOIN member_order_app moa ON smpa.order_app_id = moa.order_app_id
                 WHERE     smpa.mem_id = m.mem_id
                 AND       smpa.del_yn = 'N'
-                AND       moa.order_status = 'PURCHASE_COMPLETE'
+                AND       (moa.order_status = 'PURCHASE_CONFIRM' 
+                          OR moa.order_status = 'BUY')
               ) AS total_point
             `
           , `
@@ -71,6 +75,15 @@ export class MemberService {
                 AND       smca.mem_id = m.mem_id
                 AND       DATE_FORMAT(NOW(), '%Y%m%d%H%i%s') <= sca.end_dt
               ) AS coupon_cnt
+            `
+          , `
+              (
+                SELECT
+                  COUNT(*)
+                FROM      member_cart_app smca
+                WHERE     smca.mem_id = m.mem_id
+                AND       smca.del_yn = 'N'
+              ) AS cart_cnt
             `
         ])
         .where('mem_id = :mem_id', { mem_id })
@@ -318,6 +331,46 @@ export class MemberService {
       };
     } catch (error) {
       console.error('Error finding password:', error);
+      throw new HttpException(
+        {
+          success: false,
+          message: error.message,
+          code: COMMON_RESPONSE_CODES.FAIL
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async updateMemberWithdrawal(mem_id: number): Promise<{ success: boolean; message: string; code: string }> {
+    try {
+      const result = await this.memberRepository
+        .createQueryBuilder()
+        .update('members')
+        .set({
+          mem_app_status: 'EXIT',
+          app_exit_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
+          app_mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
+          app_mod_id: mem_id
+        })
+        .where("mem_id = :mem_id", { mem_id })
+        .execute();
+      
+      if (result.affected === 0) {
+        return {
+          success: false,
+          message: '업데이트할 회원을 찾을 수 없습니다.',
+          code: COMMON_RESPONSE_CODES.NO_DATA
+        };
+      }
+
+      return {
+        success: true,
+        message: '회원 탈퇴가 완료되었습니다.',
+        code: COMMON_RESPONSE_CODES.SUCCESS
+      };
+    } catch (error) {
+      console.error('Error updating member status:', error);
       throw new HttpException(
         {
           success: false,

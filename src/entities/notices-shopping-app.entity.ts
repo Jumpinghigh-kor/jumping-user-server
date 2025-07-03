@@ -5,11 +5,17 @@ export class NoticesShoppingApp {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'title' })
-  title: string;
+  @Column({ name: 'notices_type' })
+  notices_type: string;
 
-  @Column({ name: 'description' })
-  description: string;
+  @Column({ name: 'content' })
+  content: string;
+
+  @Column({ name: 'start_dt' })
+  start_dt: string;
+
+  @Column({ name: 'end_dt' })
+  end_dt: string;
 
   @Column({ name: 'del_yn', default: 'N' })
   del_yn: string;

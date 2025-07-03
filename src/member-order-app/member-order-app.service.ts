@@ -11,7 +11,7 @@ export class MemberOrderAppService {
     private memberRepository: Repository<Member>,
   ) {}
 
-  async getMemberOrderAppList(mem_id: string, screen_type: string): Promise<{ success: boolean; data: any[] | null; code: string }> {
+  async getMemberOrderAppList(mem_id: string, screen_type: string, year: string, search_title: string): Promise<{ success: boolean; data: any[] | null; code: string }> {
     try {
       const subQuery = this.memberRepository.manager
         .createQueryBuilder()
@@ -20,6 +20,16 @@ export class MemberOrderAppService {
           , 'pa.brand_name AS brand_name'
           , 'pa.product_name AS product_name'
           , 'pa.title AS product_title'
+          , 'pa.courier_code AS courier_code'
+          , 'pa.discount AS discount'
+          , 'FORMAT(pa.delivery_fee, 0) AS delivery_fee'
+          , 'FORMAT(pa.free_shipping_amount, 0) AS free_shipping_amount'
+          , 'pa.inquiry_phone_number AS inquiry_phone_number'
+          , 'pa.today_send_yn AS today_send_yn'
+          , 'CONCAT(SUBSTRING(pa.today_send_time, 1, 2), ":", SUBSTRING(pa.today_send_time, 3, 2)) AS today_send_time'
+          , 'pa.not_today_send_day AS not_today_send_day'
+          , 'FORMAT(pa.original_price, 0) AS original_price'
+          , 'FORMAT(pa.price, 0) AS price'
           , `
               (
                 SELECT
@@ -51,15 +61,43 @@ export class MemberOrderAppService {
             , 'moa.order_status AS order_status'
             , 'moa.order_quantity AS order_quantity'
             , 'DATE_FORMAT(moa.order_dt, "%y.%m.%d") AS order_dt'
+            , 'moa.tracking_number AS tracking_number'
+            , `
+                (
+                  SELECT
+                    smsa.receiver_name
+                  FROM  member_shipping_address smsa
+                  WHERE smsa.shipping_address_id = moa.shipping_address_id
+                ) AS receiver_name
+              `
+            , `
+              (
+                SELECT
+                  smra.return_app_id AS return_app_id
+                FROM  member_return_app smra
+                WHERE smra.order_app_id = moa.order_app_id
+                AND   smra.cancel_yn = 'N'
+              ) AS return_app_id
+            `
+            , 'mpa.payment_amount AS payment_amount'
         ])
         .from('member_order_app', 'moa')
         .leftJoin('product_detail_app', 'pda', 'moa.product_detail_app_id = pda.product_detail_app_id')
         .leftJoin('product_app', 'pa', 'pda.product_app_id = pa.product_app_id')
+        .leftJoin('member_payment_app', 'mpa', 'moa.order_app_id = mpa.order_app_id')
         .where('moa.mem_id = :mem_id', { mem_id })
         .orderBy('moa.order_app_id', 'DESC');
 
       if(screen_type == 'REVIEW') {
-        subQuery.andWhere('order_status = :status', { status: 'COMPLETE' });
+        subQuery.andWhere('order_status = :status', { status: 'PURCHASE_CONFIRM' });
+      }
+      
+      if(year) {
+        subQuery.andWhere('DATE_FORMAT(moa.order_dt, "%Y") = :year', { year });
+      }
+      
+      if(search_title) {
+        subQuery.andWhere('pa.product_name LIKE CONCAT("%", :search_title, "%")', { search_title });
       }
       
       // Create a wrapper query that selects from the subquery

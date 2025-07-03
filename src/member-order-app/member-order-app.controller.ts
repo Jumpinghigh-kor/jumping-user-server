@@ -12,10 +12,12 @@ export class MemberOrderAppController {
   @Post('getMemberOrderAppList')
   async getMemberOrderAppList(
     @Body('mem_id') mem_id: string,
-    @Body('screen_type') screen_type: string
+    @Body('screen_type') screen_type: string,
+    @Body('year') year: string,
+    @Body('search_title') search_title: string
   ): Promise<{ success: boolean; data: any[] | null; code: string }> {
     try {
-      return this.memberOrderAppService.getMemberOrderAppList(mem_id, screen_type);
+      return this.memberOrderAppService.getMemberOrderAppList(mem_id, screen_type, year, search_title);
     } catch (error) {
       throw error;
     }

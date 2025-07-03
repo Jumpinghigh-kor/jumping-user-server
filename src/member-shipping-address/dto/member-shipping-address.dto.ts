@@ -29,6 +29,10 @@ export class InsertMemberShippingAddressDto {
   @IsIn(['Y', 'N'])
   default_yn: string;
 
+  @IsOptional()
+  @IsString()
+  select_yn?: string;
+
   @IsString()
   address: string;
 
@@ -73,6 +77,10 @@ export class UpdateMemberShippingAddressDto {
   @IsIn(['Y', 'N'])
   default_yn: string;
 
+  @IsOptional()
+  @IsString()
+  select_yn?: string;
+
   @IsString()
   address: string;
 
@@ -116,6 +124,20 @@ export class UpdateDeliveryRequestDto {
 
   @IsString()
   delivery_request: string;
+}
+
+export class UpdateSelectYnDto {
+  @IsNumber()
+  @Transform(({ value }) => value ? parseInt(value) : undefined)
+  @IsOptional()
+  shipping_address_id: number;
+
+  @IsNumber()
+  @Transform(({ value }) => value ? parseInt(value) : undefined)
+  mem_id: number;
+
+  @IsString()
+  select_yn: string;
 }
 
 export interface MemberShippingAddressResponse {

@@ -2,6 +2,9 @@ import { IsNotEmpty, IsNumber, IsString, IsOptional } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class GetInquiryAppListDto {
+  @IsNotEmpty()
+  @Transform(({ value }) => Number(value))
+  mem_id: number;
 }
 
 export class InsertInquiryAppDto {

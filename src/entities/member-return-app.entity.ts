@@ -1,30 +1,27 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity('member_review_app')
-export class MemberReviewApp {
+@Entity('member_return_app')
+export class MemberReturnApp {
   @PrimaryGeneratedColumn()
-  review_app_id: number;
+  return_app_id: number;
   
   @Column()
-  product_app_id: number;
+  order_app_id: number;
 
   @Column()
   mem_id: number;
 
   @Column()
-  title: string;
+  return_type: string;
 
   @Column({ type: 'text' })
-  content: string;
+  return_status: string;
 
   @Column()
-  star_point: number;
+  reason: string;
 
   @Column({ length: 1, default: 'N' })
-  del_yn: string;
-
-  @Column({ length: 1, default: 'N' })
-  admin_del_yn: string;
+  cancel_yn: string;
 
   @Column()
   reg_dt: string;

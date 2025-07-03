@@ -28,6 +28,8 @@ export class NoticesAppService {
         .from('notices_app', 'na')
         .where('na.del_yn = :del_yn', { del_yn: 'N' })
         .andWhere('na.view_yn = :view_yn', { view_yn: 'Y' })
+        .andWhere('na.start_dt <= DATE_FORMAT(NOW(), "%Y%m%d%H%i%s")')
+        .andWhere('na.end_dt >= DATE_FORMAT(NOW(), "%Y%m%d%H%i%s")')
         .orderBy('notices_app_id', 'DESC')
         .getRawMany();
 

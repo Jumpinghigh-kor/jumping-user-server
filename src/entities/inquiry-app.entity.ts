@@ -5,6 +5,9 @@ export class InquiryApp {
   @PrimaryGeneratedColumn()
   inquiry_app_id: number;
 
+  @Column({ name: 'mem_id' })
+  mem_id: number;
+
   @Column({ name: 'title' })
   title: string;
 

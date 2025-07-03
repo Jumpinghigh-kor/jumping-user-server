@@ -1,7 +1,7 @@
 import { Controller, UseGuards, Post, Body } from '@nestjs/common';
 import { ProductAppService } from './product-app.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { GetProductAppListDto, ProductAppListResponse, GetProductAppImgDetailDto, ProductAppImgDetailResponse, SelectProductAppThumbnailImgDto, ProductAppThumbnailImgResponse, GetProductDetailAppListDto } from './dto/product-app.dto';
+import { GetProductAppListDto, ProductAppListResponse, GetProductAppImgDetailDto, ProductAppImgDetailResponse, SelectProductAppThumbnailImgDto, ProductAppThumbnailImgResponse, GetProductDetailAppListDto, ProductDetailAppResponse } from './dto/product-app.dto';
 
 @Controller('product-app')
 @UseGuards(JwtAuthGuard)
@@ -34,5 +34,12 @@ export class ProductAppController {
     @Body() getProductDetailAppListDto: GetProductDetailAppListDto
   ) {
     return this.productAppService.getProductDetailAppList(getProductDetailAppListDto);
+  }
+
+  @Post('getTargetProductDetailApp')
+  async getTargetProductDetailApp(
+    @Body() getTargetProductDetailAppDto: ProductDetailAppResponse
+  ) {
+    return this.productAppService.getTargetProductDetailApp(getTargetProductDetailAppDto);
   }
 } 

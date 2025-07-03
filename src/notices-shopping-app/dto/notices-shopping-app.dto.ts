@@ -2,9 +2,16 @@ import { IsNotEmpty, IsNumber, IsString, IsOptional } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class GetNoticesShoppingAppListDto {
-  // DTO 필드는 나중에 추가 예정
+  @IsOptional()
+  @IsString()
+  notices_type?: string;
 }
 
 export interface NoticesShoppingAppListResponse {
-  // 인터페이스 필드는 나중에 추가 예정
+  notices_type: string;
+  content: string;
+  notices_shopping_app_id: number;
+  reg_dt: string;
+  start_dt: string;
+  end_dt: string;
 } 

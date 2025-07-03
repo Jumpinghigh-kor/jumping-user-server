@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { COMMON_RESPONSE_CODES } from '../core/constants/response-codes';
 import { getCurrentDateYYYYMMDDHHIISS } from '../core/utils/date.utils';
-import { GetMemberShippingAddressListDto, InsertMemberShippingAddressDto, UpdateMemberShippingAddressDto, DeleteMemberShippingAddressDto, UpdateDeliveryRequestDto } from './dto/member-shipping-address.dto';
+import { GetMemberShippingAddressListDto, InsertMemberShippingAddressDto, UpdateMemberShippingAddressDto, DeleteMemberShippingAddressDto, UpdateDeliveryRequestDto, UpdateSelectYnDto } from './dto/member-shipping-address.dto';
 
 @Injectable()
 export class MemberShippingAddressService {
@@ -28,6 +28,7 @@ export class MemberShippingAddressService {
               SUBSTRING(receiver_phone, 8)
           ) AS receiver_phone`
           , 'default_yn'
+          , 'select_yn'
           , 'del_yn'
           , 'address'
           , 'address_detail'
@@ -42,6 +43,7 @@ export class MemberShippingAddressService {
         .where('msa.mem_id = :mem_id', { mem_id })
         .andWhere('msa.del_yn = :del_yn', { del_yn: 'N' })
         .orderBy('msa.default_yn', 'DESC')
+        .addOrderBy('msa.shipping_address_id', 'DESC')
         .getRawMany();
 
       if (!addressList || addressList.length === 0) {
@@ -70,7 +72,18 @@ export class MemberShippingAddressService {
   async getTargetMemberShippingAddress(getMemberShippingAddressListDto: GetMemberShippingAddressListDto): Promise<{ success: boolean; data: any | null; code: string }> {
     try {
       const { mem_id, shipping_address_id } = getMemberShippingAddressListDto;
-      
+
+      const checkSelectYn = await this.dataSource.manager
+        .createQueryBuilder()
+        .select([
+          'COUNT(*) as count'
+        ])
+        .from('member_shipping_address', 'msa')
+        .where('msa.mem_id = :mem_id', { mem_id })
+        .andWhere('msa.del_yn = :del_yn', { del_yn: 'N' })
+        .andWhere('msa.select_yn = :select_yn', { select_yn: 'Y' })
+        .getRawOne();
+
       // 먼저 default_yn='Y'인 주소 확인
       const queryBuilder = this.dataSource.manager
         .createQueryBuilder()
@@ -85,6 +98,7 @@ export class MemberShippingAddressService {
               SUBSTRING(receiver_phone, 8)
           ) AS receiver_phone`
           , 'default_yn'
+          , 'select_yn'
           , 'del_yn'
           , 'address'
           , 'address_detail'
@@ -105,7 +119,11 @@ export class MemberShippingAddressService {
       }
       
       let addressList = await queryBuilder.getRawOne();
-
+      
+      if(checkSelectYn?.count > 0) {
+        addressList = null;  
+      }
+      
       if (!addressList) {
         addressList = await this.dataSource.manager
           .createQueryBuilder()
@@ -120,6 +138,7 @@ export class MemberShippingAddressService {
                 SUBSTRING(receiver_phone, 8)
             ) AS receiver_phone`
             , 'default_yn'
+            , 'select_yn'
             , 'del_yn'
             , 'address'
             , 'address_detail'
@@ -133,8 +152,7 @@ export class MemberShippingAddressService {
           .from('member_shipping_address', 'msa')
           .where('msa.mem_id = :mem_id', { mem_id })
           .andWhere('msa.del_yn = :del_yn', { del_yn: 'N' })
-          .orderBy('msa.shipping_address_id', 'DESC')
-          .limit(1)
+          .andWhere('msa.select_yn = :select_yn', { select_yn: 'Y' })
           .getRawOne();
       }
 
@@ -169,13 +187,14 @@ export class MemberShippingAddressService {
         receiver_name,
         receiver_phone,
         default_yn,
+        select_yn,
         address,
         address_detail,
         zip_code,
         enter_way,
         enter_memo
       } = insertMemberShippingAddressDto;
-      
+
       // 현재 시간 (YYYYMMDDHHIISS 형식)
       const currentDate = getCurrentDateYYYYMMDDHHIISS();
       
@@ -186,6 +205,7 @@ export class MemberShippingAddressService {
           .update('member_shipping_address')
           .set({
             default_yn: 'N',
+            select_yn: 'N',
             mod_dt: currentDate,
             mod_id: mem_id
           })
@@ -206,6 +226,7 @@ export class MemberShippingAddressService {
           receiver_name,
           receiver_phone,
           default_yn,
+          select_yn,
           del_yn: 'N',
           address,
           address_detail,
@@ -262,6 +283,7 @@ export class MemberShippingAddressService {
           .update('member_shipping_address')
           .set({
             default_yn: 'N',
+            select_yn: 'N',
             mod_dt: currentDate,
             mod_id: mem_id
           })
@@ -292,6 +314,7 @@ export class MemberShippingAddressService {
           receiver_name,
           receiver_phone,
           default_yn,
+          select_yn: 'N',
           del_yn: 'N',
           address,
           address_detail,
@@ -393,6 +416,63 @@ export class MemberShippingAddressService {
       return {
         success: true,
         message: '배송 요청 사항이 성공적으로 업데이트되었습니다.',
+        code: COMMON_RESPONSE_CODES.SUCCESS
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.message,
+        code: COMMON_RESPONSE_CODES.FAIL
+      };
+    }
+  }
+
+  async updateSelectYn(updateSelectYnDto: UpdateSelectYnDto): Promise<{ success: boolean; message: string; code: string }> {
+    try {
+      const { shipping_address_id, mem_id, select_yn } = updateSelectYnDto;
+
+      // 현재 시간 (YYYYMMDDHHIISS 형식)
+      const currentDate = getCurrentDateYYYYMMDDHHIISS();
+      
+      // 먼저 해당 사용자의 모든 배송지의 select_yn을 'N'으로 변경
+      await this.dataSource
+        .createQueryBuilder()
+        .update('member_shipping_address')
+        .set({
+          select_yn: 'N',
+          mod_dt: currentDate,
+          mod_id: mem_id
+        })
+        .where('mem_id = :mem_id', { mem_id })
+        .andWhere('select_yn = :select_yn', { select_yn: 'Y' })
+        .andWhere('del_yn = :del_yn', { del_yn: 'N' })
+        .execute();
+      
+      // 배송 선택 여부 업데이트
+      if(shipping_address_id) { 
+        const result = await this.dataSource
+          .createQueryBuilder()
+          .update('member_shipping_address')
+          .set({
+            select_yn,
+            mod_dt: currentDate,
+            mod_id: mem_id
+          })
+          .where('shipping_address_id = :shipping_address_id', { shipping_address_id })
+          .execute();
+        
+        if (result.affected === 0) {
+          return {
+            success: false,
+            message: '업데이트할 배송지 정보를 찾을 수 없습니다.',
+            code: COMMON_RESPONSE_CODES.NO_DATA
+          };
+        }
+      }
+      
+      return {
+        success: true,
+        message: '배송지 선택 여부가 성공적으로 업데이트되었습니다.',
         code: COMMON_RESPONSE_CODES.SUCCESS
       };
     } catch (error) {

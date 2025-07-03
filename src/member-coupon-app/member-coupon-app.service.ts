@@ -52,7 +52,7 @@ export class MemberCouponAppService {
 
   async getMemberCouponAppList(getMemberCouponAppListDto: any): Promise<{ success: boolean; data: MemberCouponAppListResponse[] | null; code: string }> {
     try {
-      const { mem_id, use_yn } = getMemberCouponAppListDto;
+      const { mem_id, use_yn, date } = getMemberCouponAppListDto;
       
       let queryBuilder = this.dataSource
         .createQueryBuilder()
@@ -73,10 +73,16 @@ export class MemberCouponAppService {
         .from('member_coupon_app', 'mca')
         .leftJoin('coupon_app', 'ca', 'mca.coupon_app_id = ca.coupon_app_id')
         .where('ca.del_yn = :del_yn', { del_yn: 'N' })
-        .andWhere('mca.mem_id = :mem_id', { mem_id });
+        .andWhere('mca.mem_id = :mem_id', { mem_id })
 
       if (use_yn !== undefined && use_yn !== null && use_yn !== '') {
         queryBuilder = queryBuilder.andWhere('mca.use_yn = :use_yn', { use_yn });
+      }
+
+      if (date) {
+        queryBuilder = queryBuilder
+          .andWhere('ca.start_dt <= DATE_FORMAT(NOW(), \'%Y%m%d%H%i%s\')')
+          .andWhere('ca.end_dt >= DATE_FORMAT(NOW(), \'%Y%m%d%H%i%s\')');
       }
 
       const couponList = await queryBuilder.getRawMany();
@@ -131,6 +137,7 @@ export class MemberCouponAppService {
         .where('ca.del_yn = :del_yn', { del_yn: 'N' })
         .andWhere('(ca.start_dt <= DATE_FORMAT(NOW(), \'%Y%m%d%H%i%s\') AND DATE_FORMAT(NOW(), \'%Y%m%d%H%i%s\') <= ca.end_dt)')
         .andWhere('ca.product_app_id = :product_app_id', { product_app_id })
+        .orWhere('ca.product_app_id IS NULL')
         .orderBy('coupon_app_id', 'DESC')
         .getRawMany();
 

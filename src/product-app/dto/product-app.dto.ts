@@ -25,6 +25,13 @@ export interface ProductAppListResponse {
   give_point: number;
   sell_start_dt: string;
   sell_end_dt: string;
+  delivery_fee: number;
+  free_shipping_amount: number;
+  inquiry_phone_number: string;
+  today_send_yn: string;
+  today_send_time: string;
+  not_today_send_day: string;
+  courier_code: string;
   view_yn: string;
   del_yn: string;
   reg_dt: string;
@@ -82,4 +89,11 @@ export interface ProductDetailAppResponse {
   option_unit: string;
   option_gender: string;
   quantity: number;
+  delivery_fee: number;
+  free_shipping_amount: number;
+  inquiry_phone_number: string;
+  today_send_yn: string;
+  today_send_time: string;
+  not_today_send_day: string;
+  courier_code: string;
 }

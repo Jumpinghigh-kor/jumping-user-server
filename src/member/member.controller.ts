@@ -36,6 +36,13 @@ export class MemberController {
     return this.memberService.completeSignup(body);
   }
 
+  @Post('updateMemberWithdrawal')
+  async updateMemberWithdrawal(
+    @Body() body: { mem_id: number }
+  ): Promise<{ success: boolean; message: string; code: string }> {
+    return this.memberService.updateMemberWithdrawal(body.mem_id);
+  }
+
   @Post('updatePushToken')
   async updatePushToken(
     @Body() updatePushTokenDto: UpdatePushTokenDto

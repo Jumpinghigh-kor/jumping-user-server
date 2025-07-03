@@ -18,6 +18,7 @@ export interface BannerAppInfo {
   banner_app_id: number;
   banner_type: string;
   banner_locate: string;
+  navigation_path: string;
   title: string;
   content: string;
   reg_dt: Date;

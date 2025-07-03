@@ -38,6 +38,10 @@ import { MemberCartApp } from './member-cart-app/dto/member-cart-app.dto';
 import { MemberPointAppModule } from './member-point-app/member-point-app.module';
 import { MemberCouponAppModule } from './member-coupon-app/member-coupon-app.module';
 import { NoticesShoppingAppModule } from './notices-shopping-app/notices-shopping-app.module';
+import { InquiryShoppingAppModule } from './inquiry-shopping-app/inquiry-shopping-app.module';
+import { MemberReturnAppModule } from './member-return-app/member-return-app.module';
+import { EventAppModule } from './event-app/event-app.module';
+import { MemberAlarmAppModule } from './member-alarm-app/member-alarm-app.module';
 
 @Module({
   imports: [
@@ -63,6 +67,7 @@ import { NoticesShoppingAppModule } from './notices-shopping-app/notices-shoppin
     MemberExerciseGoalModule,
     NoticesAppModule,
     InquiryAppModule,
+    InquiryShoppingAppModule,
     UpdateLogAppModule,
     MemberImgFileModule,
     BannerAppModule,
@@ -76,7 +81,10 @@ import { NoticesShoppingAppModule } from './notices-shopping-app/notices-shoppin
     MemberCartAppModule,
     MemberPointAppModule,
     MemberCouponAppModule,
-    NoticesShoppingAppModule
+    NoticesShoppingAppModule,
+    MemberReturnAppModule,
+    EventAppModule,
+    MemberAlarmAppModule
   ],
   controllers: [AppController],
   providers: [AppService],

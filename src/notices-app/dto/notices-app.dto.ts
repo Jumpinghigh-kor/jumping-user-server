@@ -6,5 +6,5 @@ export class GetNoticesAppListDto {
 
 export interface NoticesAppListResponse {
   title: string;
-  description: string;
+  content: string;
 } 

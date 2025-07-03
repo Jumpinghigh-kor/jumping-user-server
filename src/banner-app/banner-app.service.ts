@@ -13,7 +13,8 @@ export class BannerAppService {
   ) {}
 
   async selectBannerAppInfo(params: any): Promise<BannerAppResponse> {
-    try {      
+
+    try {
       // 파라미터에서 banner_locate 추출
       const bannerLocate = params.banner_locate || params.bannerLocate;
       
@@ -25,16 +26,20 @@ export class BannerAppService {
           'cf.file_name',
           'cf.file_path',
           'cf.file_division',
-          'ba.banner_app_id',
-          'ba.banner_type',
-          'ba.banner_locate',
-          'ba.title',
-          'ba.content',
-          'ba.reg_dt',
-          'ba.reg_id'
+          'ba.banner_app_id AS banner_app_id',
+          'ba.event_app_id AS event_app_id',
+          'ba.banner_type AS banner_type',
+          'ba.banner_locate AS banner_locate',
+          'ba.navigation_path AS navigation_path',
+          'ba.title AS title',
+          'ba.content AS content',
+          'ba.reg_dt AS reg_dt',
+          'ba.reg_id AS reg_id'
         ])
         .where('ba.del_yn = :delYn', { delYn: 'N' })
         .andWhere('ba.use_yn = :useYn', { useYn: 'Y' })
+        .andWhere('ba.start_dt <= DATE_FORMAT(NOW(), "%Y%m%d%H%i%s")')
+        .andWhere('ba.end_dt >= DATE_FORMAT(NOW(), "%Y%m%d%H%i%s")')
         .andWhere('ba.banner_locate = :bannerLocate', { bannerLocate })
         .getRawMany();
         

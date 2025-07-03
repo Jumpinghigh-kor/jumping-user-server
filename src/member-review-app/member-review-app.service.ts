@@ -20,9 +20,10 @@ export class MemberReviewAppService {
       const { product_app_id, filter, review_img_yn } = getMemberReviewAppListDto;
       
       const queryBuilder = this.memberReviewAppRepository
-        .createQueryBuilder('mra')
-        .select([
-          'm.mem_nickname AS mem_nickname'
+      .createQueryBuilder('mra')
+      .select([
+        'm.mem_nickname AS mem_nickname'
+          , 'm.mem_app_status AS mem_app_status'
           , 'mra.review_app_id AS review_app_id'
           , 'mra.mem_id AS mem_id'
           , 'mra.product_app_id AS product_app_id'
@@ -123,7 +124,7 @@ export class MemberReviewAppService {
                   spda.option_unit
                 FROM        member_order_app smoa
                 INNER JOIN  product_detail_app spda ON smoa.product_detail_app_id = spda.product_detail_app_id
-                WHERE       spda.product_app_id = pa.product_app_id
+                WHERE       smoa.mem_id = mra.mem_id
               ) AS option_unit
             `
           , `
@@ -132,7 +133,7 @@ export class MemberReviewAppService {
                   spda.option_amount
                 FROM        member_order_app smoa
                 INNER JOIN  product_detail_app spda ON smoa.product_detail_app_id = spda.product_detail_app_id
-                WHERE       spda.product_app_id = pa.product_app_id
+                WHERE       smoa.mem_id = mra.mem_id
               ) AS option_amount
             `
           , `
@@ -141,7 +142,7 @@ export class MemberReviewAppService {
                   smoa.order_quantity
                 FROM        member_order_app smoa
                 INNER JOIN  product_detail_app spda ON smoa.product_detail_app_id = spda.product_detail_app_id
-                WHERE       spda.product_app_id = pa.product_app_id
+                WHERE       smoa.mem_id = mra.mem_id
               ) AS order_quantity
             `
         ])
@@ -194,7 +195,6 @@ export class MemberReviewAppService {
     try {
       const formattedDate = getCurrentDateYYYYMMDDHHIISS();
 
-      // Insert into member_review_app using query builder
       const reviewInsertResult = await queryRunner.manager
         .createQueryBuilder()
         .insert()
@@ -216,7 +216,6 @@ export class MemberReviewAppService {
 
       const reviewAppId = reviewInsertResult.identifiers[0].review_app_id || reviewInsertResult.raw.insertId;
 
-      // Insert into member_review_app_img if file_id array is provided
       if (reviewData.file_ids && reviewData.file_ids.length > 0) {
         for (let i = 0; i < reviewData.file_ids.length; i++) {
           const fileId = reviewData.file_ids[i];
@@ -269,9 +268,11 @@ export class MemberReviewAppService {
     content: string;
     star_point: number;
     mem_id: number;
+    file_ids?: number[];
+    review_app_img_id?: number[];
   }): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      const { review_app_id, title, content, star_point, mem_id } = updateData;
+      const { review_app_id, title, content, star_point, mem_id, review_app_img_id, file_ids } = updateData;
       const mod_dt = getCurrentDateYYYYMMDDHHIISS();
       
       const result = await this.memberReviewAppRepository
@@ -294,7 +295,45 @@ export class MemberReviewAppService {
           code: COMMON_RESPONSE_CODES.NO_DATA
         };
       }
-      
+
+      if (file_ids && file_ids.length > 0) {
+        for (let i = 0; i < file_ids.length; i++) {
+          const file_id = file_ids[i];
+          const order_seq = i + 1;
+          const insertImgResult = await this.memberReviewAppRepository
+          .createQueryBuilder()
+          .insert()
+          .into('member_review_app_img')
+          .values({
+            review_app_id: review_app_id,
+            file_id: file_id,
+            order_seq: order_seq,
+            del_yn: 'N',
+            reg_dt: mod_dt,
+            reg_id: mem_id,
+            mod_dt: null,
+            mod_id: null
+          })
+          .execute();
+        }
+      }
+
+      if (review_app_img_id && review_app_img_id.length > 0) {
+        for (const review_app_img_ids of review_app_img_id) {
+          const delteImgResult = await this.memberReviewAppRepository
+            .createQueryBuilder()
+            .update('member_review_app_img')
+            .set({
+              del_yn: 'Y',
+              mod_dt: mod_dt,
+              mod_id: mem_id
+            })
+            .where('review_app_img_id = :review_app_img_id', { review_app_img_id: review_app_img_ids })
+            .execute();
+          
+        }
+      }
+
       return {
         success: true,
         message: '리뷰가 성공적으로 업데이트되었습니다.',
@@ -376,7 +415,7 @@ export class MemberReviewAppService {
         .leftJoin('common_file', 'cf', 'mrai.file_id = cf.file_id')
         .where('mrai.del_yn = :del_yn', { del_yn: 'N' })
         .andWhere('mra.review_app_id = :review_app_id', { review_app_id })
-        .orderBy('mrai.order_seq', 'DESC');
+        .orderBy('mrai.review_app_img_id', 'ASC');
 
       const memberReviewAppImgList = await queryBuilder.getRawMany();
 

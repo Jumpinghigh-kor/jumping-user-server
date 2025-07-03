@@ -39,6 +39,9 @@ export class GetMemberCouponAppListDto {
 
   @IsOptional()
   use_yn?: string;
+
+  @IsOptional()
+  date?: string;
 } 
 
 export class GetCouponAppDto {

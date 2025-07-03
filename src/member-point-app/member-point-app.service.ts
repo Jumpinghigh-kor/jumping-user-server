@@ -17,7 +17,7 @@ export class MemberPointAppService {
         .select([
           'mpa.point_add'
           , 'mpa.point_minus'
-          , 'DATE_FORMAT(mpa.reg_dt, "%m.%d") AS reg_dt'
+          , 'DATE_FORMAT(STR_TO_DATE(mpa.reg_dt, "%Y%m%d%H%i%s"), "%m.%d") AS reg_dt'
           , 'pa.product_name'
           , 'pa.brand_name'
           , 'pda.option_unit'
@@ -31,13 +31,13 @@ export class MemberPointAppService {
         .leftJoin('product_detail_app', 'pda', 'moa.product_detail_app_id = pda.product_detail_app_id')
         .leftJoin('product_app', 'pa', 'pda.product_app_id = pa.product_app_id')
         .where('m.mem_id = :memId')
-        .andWhere('moa.order_status = "COMPLETE"')
+        .andWhere('moa.order_status = "PURCHASE_CONFIRM"')
         .andWhere('mpa.del_yn = "N"')
-        .andWhere('DATE_FORMAT(mpa.reg_dt, "%Y%m") = :regYm')
+        .andWhere('DATE_FORMAT(STR_TO_DATE(mpa.reg_dt, "%Y%m%d%H%i%s"), "%Y%m") = :regYm')
         .orderBy('mpa.point_app_id', 'DESC')
         .setParameters({memId: mem_id, regYm: reg_ym})
         .getRawMany();
-
+        
       if (!memberPointAppList || memberPointAppList.length === 0) {
         return {
           success: true,

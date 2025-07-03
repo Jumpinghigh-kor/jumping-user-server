@@ -16,9 +16,9 @@ export class InquiryAppService {
   async insertInquiryApp(insertInquiryAppDto: InsertInquiryAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
       const { 
+        mem_id,
         title, 
-        content, 
-        mem_id
+        content
       } = insertInquiryAppDto;
 
       // Using the provided SQL query with QueryBuilder
@@ -27,6 +27,7 @@ export class InquiryAppService {
         .insert()
         .into(InquiryApp)
         .values({
+          mem_id,
           title,
           content,
           answer: undefined,
@@ -57,6 +58,8 @@ export class InquiryAppService {
   }
 
   async getInquiryAppList(getInquiryAppListDto: GetInquiryAppListDto): Promise<{ success: boolean; data: InquiryAppListResponse[] | null; code: string }> {
+    const { mem_id } = getInquiryAppListDto;
+
     try {
       // 요청된 쿼리를 사용하여 데이터 조회
       const inquiryAppList = await this.dataSource
@@ -69,6 +72,7 @@ export class InquiryAppService {
         .addSelect('reg_dt', 'reg_dt')
         .from('inquiry_app', 'ia')
         .where('ia.del_yn = :del_yn', { del_yn: 'N' })
+        .andWhere('ia.mem_id = :mem_id', { mem_id: mem_id })
         .orderBy('inquiry_app_id', 'DESC')
         .getRawMany();
 
