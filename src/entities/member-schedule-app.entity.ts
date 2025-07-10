@@ -1,29 +1,35 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity('member_schedule')
+@Entity('member_schedule_app')
 export class MemberSchedule {
   @PrimaryGeneratedColumn()
-  schedule_id: number;
+  sch_app_id: number;
 
   @Column()
   mem_id: number;
 
   @Column()
-  sch_id: number;
+  original_sch_id: number;
 
   @Column()
-  sch_dt: string;
+  reservation_sch_id: number;
 
-  @Column({ default: 'N' })
+  @Column()
+  sch_dt: number;
+
+  @Column({ type: 'varchar', length: 1, nullable: true })
+  agree_yn: string;
+
+  @Column({ type: 'varchar', length: 1, default: 'N' })
   del_yn: string;
 
-  @Column()
+  @Column({ type: 'varchar', length: 14 })
   reg_dt: string;
 
   @Column()
   reg_id: number;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', length: 14, nullable: true })
   mod_dt: string;
 
   @Column({ nullable: true })

@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Member } from '../entities/member.entity';
 import { GetMemberInfoDto, MemberInfoResponse, UpdateMemberAppPasswordDto, FindPasswordDto } from './dto/member.dto';
-import { COMMON_RESPONSE_CODES } from '../core/constants/response-codes';
+import { COMMON_RESPONSE_CODES, WITHDRAWAL_RESPONSE_CODES } from '../core/constants/response-codes';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -344,6 +344,41 @@ export class MemberService {
 
   async updateMemberWithdrawal(mem_id: number): Promise<{ success: boolean; message: string; code: string }> {
     try {
+
+      const member = await this.memberRepository
+        .createQueryBuilder()
+        .select('COUNT(*)')
+        .from('member_order_app', 'moa')
+        .where('moa.mem_id = :mem_id', { mem_id })
+        .andWhere('moa.order_status NOT IN (:...statuses)', { 
+          statuses: ['PURCHASE_CONFIRM', 'RETURN_COMPLETE', 'EXCHANGE_COMPLETE'] 
+        })
+        .getRawOne();
+
+      if (member.count > 0) {
+        return {
+          success: false,
+          message: '처리 중인 주문이 있어 탈퇴할 수 없습니다.',
+          code: WITHDRAWAL_RESPONSE_CODES.ORDER_PROCESSING
+        };
+      }
+
+      const reservation = await this.memberRepository
+        .createQueryBuilder()
+        .select('COUNT(*)')
+        .from('member_schedule_app', 'msa')
+        .where('msa.mem_id = :mem_id', { mem_id })
+        .andWhere('msa.sch_dt = "RESERVATION_CONFIRM"')
+        .getRawOne();
+
+      if (reservation.count > 0) {
+        return {
+          success: false,
+          message: '처리 중인 예약이 있어 탈퇴할 수 없습니다.',
+          code: WITHDRAWAL_RESPONSE_CODES.RESERVATION_PROCESSING
+        };
+      }
+
       const result = await this.memberRepository
         .createQueryBuilder()
         .update('members')

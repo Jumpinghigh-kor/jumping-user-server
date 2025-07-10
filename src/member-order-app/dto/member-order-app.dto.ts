@@ -34,4 +34,5 @@ export interface MemberOrderAppResponse {
   courier_code: string;
   review_yn: string;
   return_app_id: number;
+  del_yn: string;
 } 

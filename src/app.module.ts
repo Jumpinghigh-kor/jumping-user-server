@@ -42,6 +42,7 @@ import { InquiryShoppingAppModule } from './inquiry-shopping-app/inquiry-shoppin
 import { MemberReturnAppModule } from './member-return-app/member-return-app.module';
 import { EventAppModule } from './event-app/event-app.module';
 import { MemberAlarmAppModule } from './member-alarm-app/member-alarm-app.module';
+import { ReturnExchangePolicyModule } from './return_exchange_policy/return_exchange_policy.module';
 
 @Module({
   imports: [
@@ -84,7 +85,8 @@ import { MemberAlarmAppModule } from './member-alarm-app/member-alarm-app.module
     NoticesShoppingAppModule,
     MemberReturnAppModule,
     EventAppModule,
-    MemberAlarmAppModule
+    MemberAlarmAppModule,
+    ReturnExchangePolicyModule
   ],
   controllers: [AppController],
   providers: [AppService],

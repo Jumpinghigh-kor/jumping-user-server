@@ -86,6 +86,7 @@ export class MemberOrderAppService {
         .leftJoin('product_app', 'pa', 'pda.product_app_id = pa.product_app_id')
         .leftJoin('member_payment_app', 'mpa', 'moa.order_app_id = mpa.order_app_id')
         .where('moa.mem_id = :mem_id', { mem_id })
+        .andWhere('moa.del_yn = :del_yn', { del_yn: 'N' })
         .orderBy('moa.order_app_id', 'DESC');
 
       if(screen_type == 'REVIEW') {
