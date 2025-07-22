@@ -134,8 +134,7 @@ export class MemberService {
       }
       
       // 현재 비밀번호 검증
-      // 테스트를 위해 1234도 허용
-      const isPasswordValid = await bcrypt.compare(current_password, member.mem_app_password) || current_password === '1234';
+      const isPasswordValid = await bcrypt.compare(current_password, member.mem_app_password);
       
       if (!isPasswordValid) {
         return {
@@ -268,18 +267,54 @@ export class MemberService {
     }
   }
 
+  async findId(mem_name: string, mem_phone: string): Promise<{ success: boolean; message: string; code: string; data: any}> {
+
+    try {
+      const existingMember = await this.memberRepository
+        .createQueryBuilder()
+        .select(['mem_email_id', 'DATE_FORMAT(app_reg_dt, "%Y.%m.%d") AS app_reg_dt'])
+        .where('mem_name = :mem_name', { mem_name })
+        .andWhere('mem_phone = :mem_phone', { mem_phone })
+        .getRawOne();
+
+      if (!existingMember) {
+        return {
+          success: false,
+          message: '일치하는 회원 정보를 찾을 수 없습니다.',
+          code: COMMON_RESPONSE_CODES.NO_DATA,
+          data: null
+        };
+      }
+
+      return {
+        success: true,
+        message: '일치하는 회원 정보를 찾았습니다.',
+        code: COMMON_RESPONSE_CODES.SUCCESS,
+        data: existingMember
+      };
+    } catch (error) {
+      console.error('Error finding id:', error);
+      throw new HttpException(
+        {
+          success: false,
+          message: error.message,
+          code: COMMON_RESPONSE_CODES.FAIL
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
   async findPassword(findPasswordDto: FindPasswordDto): Promise<{ success: boolean; message: string; code: string; data?: { mem_id: number, temporary_password?: string } }> {
     try {
-      const { mem_name, mem_phone, mem_email_id } = findPasswordDto;
+      const {  mem_email_id, mem_name, mem_phone } = findPasswordDto;
       
-      // Find member by name, phone, and email
       const member = await this.memberRepository
         .createQueryBuilder()
         .select('mem_id')
         .where('mem_name = :mem_name', { mem_name })
         .andWhere('mem_phone = :mem_phone', { mem_phone })
         .andWhere('mem_email_id = :mem_email_id', { mem_email_id })
-        .andWhere('mem_status = 1')
         .getRawOne();
 
       if (!member) {
@@ -484,6 +519,46 @@ export class MemberService {
       };
     } catch (error) {
       console.error('Error updating push yn:', error);
+      throw new HttpException(
+        {
+          success: false,
+          message: error.message,
+          code: COMMON_RESPONSE_CODES.FAIL
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async updateRecentDt(mem_id: number): Promise<{ success: boolean; message: string; code: string }> {
+    try {
+
+      const result = await this.memberRepository
+        .createQueryBuilder()
+        .update('members')
+        .set({
+          recent_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
+          app_mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
+          app_mod_id: mem_id
+        })
+        .where("mem_id = :mem_id", { mem_id })
+        .execute();
+
+      if (result.affected === 0) {
+        return {
+          success: false,
+          message: '업데이트할 회원을 찾을 수 없습니다.',
+          code: COMMON_RESPONSE_CODES.NO_DATA
+        };
+      }
+
+      return {
+        success: true,
+        message: '최근 접속일이 성공적으로 업데이트되었습니다.',
+        code: COMMON_RESPONSE_CODES.SUCCESS
+      };
+    } catch (error) {
+      console.error('Error updating recent date:', error);
       throw new HttpException(
         {
           success: false,

@@ -175,6 +175,7 @@ export class MemberScheduleAppService {
           sch_dt: sch_dt,
           agree_yn: null,
           del_yn: 'N',
+          admin_memo: null,
           reg_dt: currentDate,
           reg_id: mem_id
         })

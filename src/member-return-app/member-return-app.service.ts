@@ -47,7 +47,7 @@ export class MemberReturnAppService {
         .leftJoin('member_order_app', 'moa', 'mara.order_app_id = moa.order_app_id')
         .leftJoin('product_detail_app', 'pda', 'moa.product_detail_app_id = pda.product_detail_app_id')
         .leftJoin('product_app', 'pa', 'pda.product_app_id = pa.product_app_id')
-        .leftJoin('member_payment_app', 'mpa', 'mara.order_app_id = mpa.order_app_id')
+        .leftJoin('member_payment_app', 'mpa', 'moa.payment_app_id = mpa.payment_app_id')
         .where('moa.mem_id = :mem_id', { mem_id })
         .andWhere('mara.cancel_yn = :cancel_yn', { cancel_yn: 'N' })
         .getRawMany();

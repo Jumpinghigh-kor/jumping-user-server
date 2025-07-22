@@ -31,6 +31,7 @@ export class ProductAppService {
           , 'sell_end_dt'
           , 'courier_code'
           , 'FORMAT(delivery_fee, 0) AS delivery_fee'
+          , 'remote_delivery_fee AS remote_delivery_fee'
           , 'FORMAT(free_shipping_amount, 0) AS free_shipping_amount'
           , 'inquiry_phone_number'
           , 'today_send_yn'
@@ -201,6 +202,7 @@ export class ProductAppService {
           'pa.sell_end_dt AS sell_end_dt',
           'pa.courier_code AS courier_code',
           'FORMAT(pa.delivery_fee, 0) AS delivery_fee',
+          'pa.remote_delivery_fee AS remote_delivery_fee',
           'FORMAT(pa.free_shipping_amount, 0) AS free_shipping_amount',
           'pa.inquiry_phone_number AS inquiry_phone_number',
           'pa.today_send_yn AS today_send_yn',
@@ -262,6 +264,7 @@ export class ProductAppService {
           'pa.sell_end_dt AS sell_end_dt',
           'pa.courier_code AS courier_code',
           'FORMAT(pa.delivery_fee, 0) AS delivery_fee',
+          'pa.remote_delivery_fee AS remote_delivery_fee',
           'FORMAT(pa.free_shipping_amount, 0) AS free_shipping_amount',
           'pa.inquiry_phone_number AS inquiry_phone_number',
           'pa.today_send_yn AS today_send_yn',

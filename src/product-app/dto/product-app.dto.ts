@@ -26,6 +26,7 @@ export interface ProductAppListResponse {
   sell_start_dt: string;
   sell_end_dt: string;
   delivery_fee: number;
+  remote_delivery_fee: number;
   free_shipping_amount: number;
   inquiry_phone_number: string;
   today_send_yn: string;
@@ -90,6 +91,7 @@ export interface ProductDetailAppResponse {
   option_gender: string;
   quantity: number;
   delivery_fee: number;
+  remote_delivery_fee: number;
   free_shipping_amount: number;
   inquiry_phone_number: string;
   today_send_yn: string;

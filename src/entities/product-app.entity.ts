@@ -26,6 +26,30 @@ export class ProductApp {
   @Column({ nullable: true })
   sell_end_dt: string;
 
+  @Column({ nullable: true })
+  courier_code: string;
+
+  @Column({ nullable: true })
+  delivery_fee: number;
+
+  @Column({ nullable: true })
+  remote_delivery_fee: number;
+
+  @Column({ nullable: true })
+  free_shipping_amount: number;
+
+  @Column({ nullable: true })
+  inquiry_phone_number: string;
+
+  @Column({ nullable: true })
+  today_send_yn: string;
+
+  @Column({ nullable: true })
+  today_send_time: string;
+
+  @Column({ nullable: true })
+  not_today_send_day: string;
+
   @Column({ nullable: true, default: 'Y' })
   view_yn: string;
 

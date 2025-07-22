@@ -24,6 +24,9 @@ export class Member {
   @Column({ nullable: true })
   app_exit_dt: string;
 
+  @Column({ nullable: true })
+  recent_dt: string;
+
   // 앱 수정 날짜
   @Column({ name: 'app_mod_dt', nullable: true })
   app_mod_dt: string;

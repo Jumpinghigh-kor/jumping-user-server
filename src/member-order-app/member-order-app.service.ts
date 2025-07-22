@@ -35,7 +35,7 @@ export class MemberOrderAppService {
                 SELECT
                   FORMAT(smpa.payment_amount, 0)
                 FROM  member_payment_app smpa
-                WHERE smpa.order_app_id = moa.order_app_id
+                WHERE smpa.payment_app_id = moa.payment_app_id
                 AND   smpa.payment_status = 'PAYMENT_COMPLETE'
                 ORDER BY smpa.payment_app_id DESC
                 LIMIT 1
@@ -84,7 +84,7 @@ export class MemberOrderAppService {
         .from('member_order_app', 'moa')
         .leftJoin('product_detail_app', 'pda', 'moa.product_detail_app_id = pda.product_detail_app_id')
         .leftJoin('product_app', 'pa', 'pda.product_app_id = pa.product_app_id')
-        .leftJoin('member_payment_app', 'mpa', 'moa.order_app_id = mpa.order_app_id')
+        .leftJoin('member_payment_app', 'mpa', 'moa.payment_app_id = mpa.payment_app_id')
         .where('moa.mem_id = :mem_id', { mem_id })
         .andWhere('moa.del_yn = :del_yn', { del_yn: 'N' })
         .orderBy('moa.order_app_id', 'DESC');

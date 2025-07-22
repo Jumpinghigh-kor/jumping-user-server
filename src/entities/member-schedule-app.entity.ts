@@ -23,6 +23,9 @@ export class MemberSchedule {
   @Column({ type: 'varchar', length: 1, default: 'N' })
   del_yn: string;
 
+  @Column()
+  admin_memo: string;
+
   @Column({ type: 'varchar', length: 14 })
   reg_dt: string;
 

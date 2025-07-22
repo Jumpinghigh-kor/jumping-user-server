@@ -2,6 +2,7 @@ import { Controller, Post, Body, UseGuards } from '@nestjs/common';
 import { MemberService } from './member.service';
 import { GetMemberInfoDto, MemberInfoResponse, UpdateMemberAppPasswordDto, UpdatePushTokenDto, UpdatePushYnDto } from './dto/member.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Public } from '../auth/decorators/public.decorator';
 
 @Controller('members')
 @UseGuards(JwtAuthGuard)
@@ -55,5 +56,29 @@ export class MemberController {
     @Body() updatePushYnDto: UpdatePushYnDto
   ): Promise<{ success: boolean; message: string; code: string }> {
     return this.memberService.updatePushYn(updatePushYnDto.mem_id, updatePushYnDto.push_yn);
+  }
+
+  @Post('updateRecentDt')
+  async updateRecentDt(
+    @Body() body: { mem_id: number }
+  ): Promise<{ success: boolean; message: string; code: string }> {
+    return this.memberService.updateRecentDt(body.mem_id);
+  }
+
+
+  @Public()
+  @Post('findId')
+  async findId(
+    @Body() body: { mem_name: string, mem_phone: string }
+  ): Promise<{ success: boolean; message: string; code: string; data: any }> {
+    return this.memberService.findId(body.mem_name, body.mem_phone);
+  }
+
+  @Public()
+  @Post('findPassword')
+  async findPassword(
+    @Body() body: { mem_id: number, mem_email_id: string, mem_name: string, mem_phone: string }
+  ): Promise<{ success: boolean; message: string; code: string; data?: { mem_id: number, temporary_password?: string } }> {
+    return this.memberService.findPassword(body);
   }
 } 

@@ -41,12 +41,6 @@ export class AuthService {
         }, HttpStatus.BAD_REQUEST);
       }
 
-      // 임시: 비밀번호가 1234인 경우 허용
-      if (password === '1234') {
-        const { mem_app_password, ...result } = member;
-        return result;
-      }
-
       // 비밀번호가 없는 경우
       if (!member.mem_app_password) {
         throw new HttpException({
