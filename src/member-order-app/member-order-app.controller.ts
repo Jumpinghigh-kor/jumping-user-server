@@ -1,6 +1,6 @@
 import { Controller, Post, Body, UseGuards } from '@nestjs/common';
 import { MemberOrderAppService } from './member-order-app.service';
-import { GetMemberOrdersDto, MemberOrderAppResponse } from './dto/member-order-app.dto';
+import { InsertMemberOrderAppDto, UpdateOrderStatusDto } from './dto/member-order-app.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { BadRequestException } from '@nestjs/common';
 
@@ -21,5 +21,23 @@ export class MemberOrderAppController {
     } catch (error) {
       throw error;
     }
+  }
+
+  @Post('insertMemberOrderApp')
+  async insertMemberOrderApp(
+    @Body() insertMemberOrderAppDto: InsertMemberOrderAppDto
+  ): Promise<{ success: boolean; message: string; code: string }> {
+    try {
+      return this.memberOrderAppService.insertMemberOrderApp(insertMemberOrderAppDto);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Post('updateOrderStatus')
+  async updateOrderStatus(
+    @Body() updateOrderStatusDto: UpdateOrderStatusDto
+  ): Promise<{ success: boolean; message: string; code: string }> {
+    return this.memberOrderAppService.updateOrderStatus(updateOrderStatusDto);
   }
 } 

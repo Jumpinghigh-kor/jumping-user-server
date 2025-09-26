@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsNumber, IsString, IsOptional } from 'class-validator';
 import { Transform } from 'class-transformer';
 
-export class InsertMemberExerciseDto {
+export class InsertMemberExerciseAppDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
   mem_id: number;
@@ -26,7 +26,7 @@ export class InsertMemberExerciseDto {
   other_exercise_time?: string;
 
   @IsOptional()
-  other_exercise_calory?: string;
+  other_exercise_calory?: number;
 
   @IsNotEmpty()
   reg_dt: string;
@@ -43,10 +43,10 @@ export class InsertMemberExerciseDto {
   mod_id?: number | null;
 }
 
-export class UpdateMemberExerciseDto {
+export class UpdateMemberExerciseAppDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  exercise_id: number;
+  exercise_app_id: number;
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
@@ -69,10 +69,10 @@ export class UpdateMemberExerciseDto {
   other_exercise_time?: string;
 
   @IsOptional()
-  other_exercise_calory?: string;
+  other_exercise_calory?: number;
 }
 
-export class GetMemberExerciseInfoDto {
+export class GetMemberExerciseAppInfoDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
   mem_id: number;
@@ -81,7 +81,7 @@ export class GetMemberExerciseInfoDto {
   exercise_dt: string;
 }
 
-export class GetMemberExerciseListDto {
+export class GetMemberExerciseAppListDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
   mem_id: number;
@@ -93,8 +93,8 @@ export class GetMemberExerciseListDto {
   period?: string;
 }
 
-export interface MemberExerciseInfoResponse {
-  exercise_id: number;
+export interface MemberExerciseAppInfoResponse {
+  exercise_app_id: number;
   mem_id: number;
   exercise_dt: string;
   jumping_exercise_time: string;
@@ -102,11 +102,11 @@ export interface MemberExerciseInfoResponse {
   jumping_heart_rate: string;
   other_exercise_type: string;
   other_exercise_time: string;
-  other_exercise_calory: string;
+  other_exercise_calory: number;
 }
 
-export interface MemberExerciseListResponse {
-  exercise_id: number;
+export interface MemberExerciseAppListResponse {
+  exercise_app_id: number;
   mem_id: number;
   exercise_dt: string;
   jumping_exercise_time: string;
@@ -114,5 +114,5 @@ export interface MemberExerciseListResponse {
   jumping_heart_rate: string;
   other_exercise_type: string;
   other_exercise_time: string;
-  other_exercise_calory: string;
+  other_exercise_calory: number;
 } 

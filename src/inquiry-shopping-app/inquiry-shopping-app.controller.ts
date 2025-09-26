@@ -1,21 +1,40 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards } from '@nestjs/common';
 import { InquiryShoppingAppService } from './inquiry-shopping-app.service';
-import { InsertInquiryShoppingAppDto } from './dto/inquiry-shopping-app.dto';
+import { GetInquiryShoppingAppListDto, InsertInquiryShoppingAppDto, InquiryShoppingAppListResponse, UpdateInquiryShoppingAppDto, DeleteInquiryShoppingAppDto } from './dto/inquiry-shopping-app.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('inquiry-shopping-app')
+@UseGuards(JwtAuthGuard)
 export class InquiryShoppingAppController {
   constructor(
     private readonly inquiryShoppingAppService: InquiryShoppingAppService,
   ) {}
 
-  @Post('/insertInquiryShoppingApp')
-  insertInquiryShoppingApp(@Body() insertInquiryShoppingAppDto: InsertInquiryShoppingAppDto) {
-    return this.inquiryShoppingAppService.insertInquiryShoppingApp(
-      insertInquiryShoppingAppDto.mem_id,
-      insertInquiryShoppingAppDto.product_app_id,
-      insertInquiryShoppingAppDto.description
-    );
+  @Post('getInquiryShoppingAppList')
+  async getInquiryAppList(
+    @Body() getInquiryAppListDto: GetInquiryShoppingAppListDto
+  ): Promise<{ success: boolean; data: InquiryShoppingAppListResponse[] | null; code: string }> {
+    return this.inquiryShoppingAppService.getInquiryShoppingAppList(getInquiryAppListDto);
   }
 
-  // Methods will be added later
-} 
+  @Post('insertInquiryShoppingApp')
+  async insertInquiryApp(
+    @Body() insertInquiryShoppingAppDto: InsertInquiryShoppingAppDto
+  ): Promise<{ success: boolean; message: string; code: string }> {
+    return this.inquiryShoppingAppService.insertInquiryShoppingApp(insertInquiryShoppingAppDto);
+  }
+
+  @Post('updateInquiryShoppingApp')
+  async updateInquiryShoppingApp(
+    @Body() updateInquiryShoppingAppDto: UpdateInquiryShoppingAppDto
+  ): Promise<{ success: boolean; message: string; code: string }> {
+    return this.inquiryShoppingAppService.updateInquiryShoppingApp(updateInquiryShoppingAppDto);
+  }
+
+  @Post('deleteInquiryShoppingApp')
+  async deleteInquiryShoppingApp(
+    @Body() deleteInquiryShoppingAppDto: DeleteInquiryShoppingAppDto
+  ): Promise<{ success: boolean; message: string; code: string }> {
+    return this.inquiryShoppingAppService.deleteInquiryShoppingApp(deleteInquiryShoppingAppDto);
+  }
+}

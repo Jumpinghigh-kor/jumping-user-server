@@ -97,7 +97,6 @@ export class MemberScheduleAppService {
 
   async getMemberScheduleAppList(mem_id: number): Promise<{ success: boolean; data: any[] | null; code: string }> {
     try {
-      // NestJS TypeORM QueryBuilder 사용
       const schedules = await this.dataSource
         .createQueryBuilder()
         .select([
@@ -125,7 +124,7 @@ export class MemberScheduleAppService {
         .orderBy(`
                   CASE
                     WHEN msa.sch_dt = DATE_FORMAT(NOW(), '%Y%m%d') THEN 1
-                    WHEN msa.sch_dt > DATE_FORMAT(NOW(), '%Y%m%d') THEN 2
+                    WHEN msa.sch_dt > DATE_FORMAT(NOW(), '%Y%m%d') THEN sch_dt
                     ELSE 3
                   END`, 'ASC')
         .getRawMany();
@@ -189,6 +188,7 @@ export class MemberScheduleAppService {
           const day = dateStr.substring(6, 8);
           return `${year}년 ${month}월 ${day}일`;
         }
+        console.log(dateStr);
         return dateStr;
       };
 
@@ -233,8 +233,9 @@ export class MemberScheduleAppService {
       const currentDate = getCurrentDateYYYYMMDDHHIISS();
       
       // sch_dt를 yyyy년 mm월 dd일 형식으로 변환하는 함수
-      const formatDate = (dateStr: string) => {
-        if (dateStr && dateStr.length === 8) {
+      const formatDate = (dateInput: string | number | null | undefined) => {
+        const dateStr = String(dateInput ?? '');
+        if (dateStr.length === 8) {
           const year = dateStr.substring(0, 4);
           const month = dateStr.substring(4, 6);
           const day = dateStr.substring(6, 8);
@@ -249,10 +250,10 @@ export class MemberScheduleAppService {
       const scheduleInfos = await this.dataSource
         .createQueryBuilder()
         .select([
-          'msa.sch_app_id'
-          , 'msa.sch_dt'
-          , 'm.mem_name'
-          , 'm.center_id'
+          'msa.sch_app_id AS sch_app_id'
+          , 'msa.sch_dt AS sch_dt'
+          , 'm.mem_name AS mem_name'
+          , 'm.center_id AS center_id'
         ])
         .from('member_schedule_app', 'msa')
         .leftJoin('members', 'm', 'm.mem_id = msa.mem_id')

@@ -1,9 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity('inquiry_app')
-export class InquiryApp {
+@Entity('inquiry_shopping_app')
+export class InquiryShoppingApp {
   @PrimaryGeneratedColumn()
-  inquiry_app_id: number;
+  inquiry_shopping_app_id: number;
 
   @Column({ name: 'mem_id' })
   mem_id: number;

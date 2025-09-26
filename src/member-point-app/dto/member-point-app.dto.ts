@@ -7,19 +7,19 @@ export class MemberPointAppDto {
 
   @IsNumber()
   @IsNotEmpty()
+  mem_id: number;
+
+  @IsNumber()
+  @IsNotEmpty()
   order_app_id: number;
 
   @IsString()
   @IsNotEmpty()
-  point_type: string;
+  point_status: string;
 
   @IsNumber()
   @IsOptional()
-  point_add: number;
-
-  @IsNumber()
-  @IsOptional()
-  point_minus: number;
+  point_amount: number;
 
   @IsString()
   @IsOptional()
@@ -59,13 +59,10 @@ export class ProductPointDataDto {
   order_app_id: number;
 
   @IsString()
-  point_type: string;
+  point_status: string;
 
   @IsNumber()
-  point_add: number;
-
-  @IsNumber()
-  point_minus: number;
+  point_amount: number;
 
   @IsString()
   reg_dt: string;

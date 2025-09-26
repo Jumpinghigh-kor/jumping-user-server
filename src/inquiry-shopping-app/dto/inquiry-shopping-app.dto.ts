@@ -1,4 +1,11 @@
 import { IsNotEmpty, IsNumber, IsOptional, IsString, IsDate } from 'class-validator';
+import { Transform } from 'class-transformer';
+
+export class GetInquiryShoppingAppListDto {
+  @IsNotEmpty()
+  @Transform(({ value }) => Number(value))
+  mem_id: number;
+}
 
 export class InquiryShoppingAppDto {
   @IsNumber()
@@ -10,12 +17,24 @@ export class InquiryShoppingAppDto {
   mem_id: number;
 
   @IsString()
+  @IsOptional()
+  inquiry_type: string;
+  
+  @IsString()
   @IsNotEmpty()
-  product_app_id: number;
+  title: string;
+  
+  @IsString()
+  @IsNotEmpty()
+  content: string;
 
   @IsString()
   @IsOptional()
-  description: string;
+  answer: string;
+
+  @IsString()
+  @IsOptional()
+  answer_dt: string;
 
   @IsString()
   @IsOptional()
@@ -43,13 +62,55 @@ export class InsertInquiryShoppingAppDto {
   @IsNotEmpty()
   mem_id: number;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  product_app_id: number;
+  inquiry_type: string;
 
   @IsString()
   @IsNotEmpty()
-  description: string;
+  title: string;
+
+  @IsString()
+  @IsNotEmpty()
+  content: string;
 }
 
-// Additional DTOs can be added here as needed 
+export interface InquiryShoppingAppListResponse {
+  title: string;
+  content: string;
+  inquiry_app_id: number;
+  reg_dt: string;
+}
+
+export class UpdateInquiryShoppingAppDto {
+  @IsNotEmpty()
+  @Transform(({ value }) => Number(value))
+  inquiry_shopping_app_id: number;
+
+  @IsOptional()
+  inquiry_type: string;
+
+  @IsOptional()
+  title?: string;
+
+  @IsOptional()
+  content?: string;
+
+  @IsOptional()
+  @Transform(({ value }) => Number(value))
+  mem_id?: number;
+
+  @IsOptional()
+  @Transform(({ value }) => Number(value))
+  mod_id?: number;
+}
+
+export class DeleteInquiryShoppingAppDto {
+  @IsNotEmpty()
+  @Transform(({ value }) => Number(value))
+  inquiry_shopping_app_id: number;
+
+  @IsNotEmpty()
+  @Transform(({ value }) => Number(value))
+  mem_id: number;
+}

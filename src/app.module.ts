@@ -6,15 +6,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { Member } from './entities/member.entity';
 import { CheckinLog } from './entities/checkin-log.entity';
-import { MemberExercise } from './entities/member-exercise.entity';
+import { MemberExerciseApp } from './entities/member-exercise-app.entity';
 import { Notice } from './entities/notice.entity';
 import { NoticesApp } from './entities/notices-app.entity';
 import { InquiryApp } from './entities/inquiry-app.entity';
+import { InquiryShoppingApp } from './entities/inquiry-shopping-app.entity';
 import { CheckinLogModule } from './checkin-log/checkin-log.module';
 import { MemberOrdersModule } from './member-orders/member-orders.module';
 import { MemberOrderAppModule } from './member-order-app/member-order-app.module';
 import { MemberModule } from './member/member.module';
-import { MemberExerciseModule } from './member-exercise/member-exercise.module';
+import { MemberExerciseAppModule } from './member-exercise-app/member-exercise-app.module';
 import { NoticesAppModule } from './notices-app/notices-app.module';
 import { InquiryAppModule } from './inquiry-app/inquiry-app.module';
 import { UpdateLogAppModule } from './update-log-app/update-log-app.module';
@@ -43,6 +44,11 @@ import { MemberReturnAppModule } from './member-return-app/member-return-app.mod
 import { EventAppModule } from './event-app/event-app.module';
 import { MemberAlarmAppModule } from './member-alarm-app/member-alarm-app.module';
 import { ReturnExchangePolicyModule } from './return_exchange_policy/return_exchange_policy.module';
+import { MemberOrderApp } from './entities/member-order-app.entity';
+import { MemberOrderAddress } from './entities/member-order-address.entity';
+import { PostApp } from './entities/post-app.entity';
+import { MemberPostApp } from './entities/member-post-app.entity';
+import { PostAppModule } from './post-app/post-app.module';
 
 @Module({
   imports: [
@@ -56,7 +62,7 @@ import { ReturnExchangePolicyModule } from './return_exchange_policy/return_exch
       username: process.env.DB_USERNAME || 'root',
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_DATABASE || 'jumping',
-      entities: [Member, CheckinLog, MemberExercise, Notice, NoticesApp, InquiryApp, RefreshToken, BannerApp, ProductApp, MemberReviewApp, MemberSchedule, MemberCartApp],
+      entities: [Member, CheckinLog, MemberExerciseApp, Notice, NoticesApp, InquiryApp, InquiryShoppingApp, RefreshToken, BannerApp, ProductApp, MemberReviewApp, MemberSchedule, MemberCartApp, MemberOrderApp, MemberOrderAddress, PostApp, MemberPostApp],
       synchronize: false, // 데이터 보존을 위해 false로 설정
     }),
     AuthModule,
@@ -64,7 +70,7 @@ import { ReturnExchangePolicyModule } from './return_exchange_policy/return_exch
     MemberOrderAppModule,
     MemberOrdersModule,
     MemberModule,
-    MemberExerciseModule,
+    MemberExerciseAppModule,
     MemberExerciseGoalModule,
     NoticesAppModule,
     InquiryAppModule,
@@ -86,7 +92,8 @@ import { ReturnExchangePolicyModule } from './return_exchange_policy/return_exch
     MemberReturnAppModule,
     EventAppModule,
     MemberAlarmAppModule,
-    ReturnExchangePolicyModule
+    ReturnExchangePolicyModule,
+    PostAppModule
   ],
   controllers: [AppController],
   providers: [AppService],

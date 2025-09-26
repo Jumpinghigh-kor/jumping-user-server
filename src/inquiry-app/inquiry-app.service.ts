@@ -17,7 +17,8 @@ export class InquiryAppService {
     try {
       const { 
         mem_id,
-        title, 
+        inquiry_type,
+        title,
         content
       } = insertInquiryAppDto;
 
@@ -28,6 +29,7 @@ export class InquiryAppService {
         .into(InquiryApp)
         .values({
           mem_id,
+          inquiry_type,
           title,
           content,
           answer: undefined,
@@ -66,6 +68,7 @@ export class InquiryAppService {
         .createQueryBuilder()
         .select('title', 'title')
         .addSelect('content', 'content')
+        .addSelect('inquiry_type', 'inquiry_type')
         .addSelect('inquiry_app_id', 'inquiry_app_id')
         .addSelect('answer', 'answer')
         .addSelect('answer_dt', 'answer_dt')
@@ -105,6 +108,7 @@ export class InquiryAppService {
     try {
       const { 
         inquiry_app_id,
+        inquiry_type,
         title,
         content,
         mem_id,
@@ -119,6 +123,10 @@ export class InquiryAppService {
         mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
         mod_id: finalModId
       };
+
+      if (inquiry_type !== undefined) {
+        updateFields['inquiry_type'] = inquiry_type;
+      }
       
       if (title !== undefined) {
         updateFields['title'] = title;

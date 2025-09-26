@@ -15,23 +15,23 @@ export class MemberPointAppService {
       const memberPointAppList = await this.dataSource
         .createQueryBuilder()
         .select([
-          'mpa.point_add'
-          , 'mpa.point_minus'
+          'mpa.point_status'
           , 'DATE_FORMAT(STR_TO_DATE(mpa.reg_dt, "%Y%m%d%H%i%s"), "%m.%d") AS reg_dt'
           , 'pa.product_name'
           , 'pa.brand_name'
+          , 'mpa.point_amount'
           , 'pda.option_unit'
           , 'pda.option_amount'
           , 'pda.option_gender'
-          , 'moa.order_quantity'
+          , 'moda.order_quantity'
         ])
         .from('members', 'm')
         .innerJoin('member_point_app', 'mpa', 'm.mem_id = mpa.mem_id')
         .innerJoin('member_order_app', 'moa', 'mpa.order_app_id = moa.order_app_id')
-        .leftJoin('product_detail_app', 'pda', 'moa.product_detail_app_id = pda.product_detail_app_id')
+        .innerJoin('member_order_detail_app', 'moda', 'moa.order_app_id = moda.order_app_id')
+        .leftJoin('product_detail_app', 'pda', 'moda.product_detail_app_id = pda.product_detail_app_id')
         .leftJoin('product_app', 'pa', 'pda.product_app_id = pa.product_app_id')
         .where('m.mem_id = :memId')
-        .andWhere('moa.order_status = "PURCHASE_CONFIRM"')
         .andWhere('mpa.del_yn = "N"')
         .andWhere('DATE_FORMAT(STR_TO_DATE(mpa.reg_dt, "%Y%m%d%H%i%s"), "%Y%m") = :regYm')
         .orderBy('mpa.point_app_id', 'DESC')
@@ -52,6 +52,7 @@ export class MemberPointAppService {
         code: COMMON_RESPONSE_CODES.SUCCESS
       };
     } catch (error) {
+      console.error('Error fetching member point app list:', error);
       throw new HttpException(
         {
           success: false,

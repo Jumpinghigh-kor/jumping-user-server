@@ -5,9 +5,13 @@ export class MemberReturnAppDto {
   @IsNotEmpty()
   return_app_id: number;
 
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
-  order_app_id: number;
+  order_detail_app_id: number;
+
+  @IsNumber()
+  @IsOptional()
+  order_address_id: number;
 
   @IsString()
   @IsNotEmpty()
@@ -15,11 +19,11 @@ export class MemberReturnAppDto {
 
   @IsString()
   @IsNotEmpty()
-  return_type: string;
+  return_applicator: string;
 
   @IsString()
   @IsOptional()
-  return_status: string;
+  return_reason_type: string;
 
   @IsString()
   @IsOptional()
@@ -27,7 +31,31 @@ export class MemberReturnAppDto {
 
   @IsString()
   @IsOptional()
-  admin_reason: string;
+  customer_tracking_number: string;
+
+  @IsString()
+  @IsOptional()
+  company_tracking_number: string;
+
+  @IsString()
+  @IsOptional()
+  customer_courier_code: string;
+
+  @IsString()
+  @IsOptional()
+  company_courier_code: string;
+
+  @IsNumber()
+  @IsOptional()
+  quantity: number;
+
+  @IsString()
+  @IsOptional()
+  return_goodsflow_id: number;
+
+  @IsString()
+  @IsOptional()
+  approval_yn: string;
 
   @IsString()
   @IsOptional()
@@ -59,11 +87,11 @@ export class GetMemberReturnAppDto {
 export class InsertMemberReturnAppDto {
   @IsNumber()
   @IsNotEmpty()
-  order_app_id: number;
+  order_detail_app_id: number;
 
   @IsNumber()
   @IsNotEmpty()
-  shipping_address_id: number;
+  order_address_id: number;
 
   @IsString()
   @IsNotEmpty()
@@ -71,7 +99,11 @@ export class InsertMemberReturnAppDto {
 
   @IsString()
   @IsNotEmpty()
-  return_type: string;
+  return_applicator: string;
+
+  @IsString()
+  @IsOptional()
+  return_reason_type: string;
 
   @IsString()
   @IsOptional()
@@ -82,12 +114,34 @@ export class InsertMemberReturnAppDto {
   file_ids?: number[];
 }
 
-export class DeleteMemberReturnAppDto {
+export class CancelMemberReturnAppDto {
   @IsString()
   @IsNotEmpty()
   mem_id: string;
 
-  @IsNumber()
+  @IsArray()
   @IsNotEmpty()
-  return_app_id: number;
+  order_detail_app_ids: number[];
+}
+
+export class UpdateMemberReturnAppDto {
+  @IsString()
+  @IsNotEmpty()
+  mem_id: string;
+
+  @IsArray()
+  @IsNotEmpty()
+  order_detail_app_ids: number[];
+
+  @IsString()
+  @IsNotEmpty()
+  cancel_yn: string;
+
+  @IsString()
+  @IsOptional()
+  return_reason_type: string;
+
+  @IsString()
+  @IsOptional()
+  reason: string;
 }

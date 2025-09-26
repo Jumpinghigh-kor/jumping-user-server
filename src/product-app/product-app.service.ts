@@ -15,6 +15,7 @@ export class ProductAppService {
   async getProductAppList(getProductAppListDto: GetProductAppListDto): Promise<{ success: boolean; data: ProductAppListResponse[] | null; code: string }> {
     try {
       const { big_category, mem_id } = getProductAppListDto;
+      console.log(mem_id, big_category);
       const queryBuilder = this.productAppRepository
         .createQueryBuilder('p')
         .select([
@@ -77,7 +78,6 @@ export class ProductAppService {
         code: COMMON_RESPONSE_CODES.SUCCESS
       };
     } catch (error) {
-      console.error('Error fetching product app list:', error);
       throw new HttpException(
         {
           success: false,

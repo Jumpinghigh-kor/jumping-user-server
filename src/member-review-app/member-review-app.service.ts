@@ -123,8 +123,10 @@ export class MemberReviewAppService {
                 SELECT
                   spda.option_unit
                 FROM        member_order_app smoa
-                INNER JOIN  product_detail_app spda ON smoa.product_detail_app_id = spda.product_detail_app_id
+                INNER JOIN  member_order_detail_app smoda ON smoa.order_app_id = smoda.order_app_id
+                INNER JOIN  product_detail_app spda ON smoda.product_detail_app_id = spda.product_detail_app_id
                 WHERE       smoa.mem_id = mra.mem_id
+                AND       smoa.del_yn = 'N'
               ) AS option_unit
             `
           , `
@@ -132,17 +134,21 @@ export class MemberReviewAppService {
                 SELECT
                   spda.option_amount
                 FROM        member_order_app smoa
-                INNER JOIN  product_detail_app spda ON smoa.product_detail_app_id = spda.product_detail_app_id
+                INNER JOIN  member_order_detail_app smoda ON smoa.order_app_id = smoda.order_app_id
+                INNER JOIN  product_detail_app spda ON smoda.product_detail_app_id = spda.product_detail_app_id
                 WHERE       smoa.mem_id = mra.mem_id
+                AND         smoa.del_yn = 'N'
               ) AS option_amount
             `
           , `
               (
                 SELECT
-                  smoa.order_quantity
+                  smoda.order_quantity
                 FROM        member_order_app smoa
-                INNER JOIN  product_detail_app spda ON smoa.product_detail_app_id = spda.product_detail_app_id
+                INNER JOIN  member_order_detail_app smoda ON smoa.order_app_id = smoda.order_app_id
+                INNER JOIN  product_detail_app spda ON smoda.product_detail_app_id = spda.product_detail_app_id
                 WHERE       smoa.mem_id = mra.mem_id
+                AND         smoa.del_yn = 'N'
               ) AS order_quantity
             `
         ])

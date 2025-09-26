@@ -1,9 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity('member_exercise')
-export class MemberExercise {
+@Entity('member_exercise_app')
+export class MemberExerciseApp {
   @PrimaryGeneratedColumn()
-  exercise_id: number;
+  exercise_app_id: number;
 
   @Column({ name: 'mem_id' })
   mem_id: number;
@@ -27,7 +27,7 @@ export class MemberExercise {
   other_exercise_time: string;
 
   @Column({ name: 'other_exercise_calory' })
-  other_exercise_calory: string;
+  other_exercise_calory: number;
 
   @Column({ name: 'reg_dt' })
   reg_dt: string;

@@ -55,13 +55,16 @@ export class MemberService {
           , `
               (
                 SELECT
-                  FORMAT(SUM(point_add) - SUM(point_minus), 0)
+                  FORMAT(SUM(
+                      CASE
+                        WHEN  point_status = 'POINT_ADD' THEN point_amount
+                        WHEN  point_status = 'POINT_MINUS' THEN -point_amount
+                        ELSE 0
+                      END
+                  ), 0)
                 FROM      member_point_app smpa
-                LEFT JOIN member_order_app moa ON smpa.order_app_id = moa.order_app_id
                 WHERE     smpa.mem_id = m.mem_id
                 AND       smpa.del_yn = 'N'
-                AND       (moa.order_status = 'PURCHASE_CONFIRM' 
-                          OR moa.order_status = 'BUY')
               ) AS total_point
             `
           , `

@@ -1,19 +1,19 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
-import { MemberExercise } from '../entities/member-exercise.entity';
-import { InsertMemberExerciseDto, GetMemberExerciseInfoDto, MemberExerciseInfoResponse, UpdateMemberExerciseDto, GetMemberExerciseListDto, MemberExerciseListResponse } from './dto/member-exercise.dto';
+import { MemberExerciseApp } from '../entities/member-exercise-app.entity';
+import { InsertMemberExerciseAppDto, GetMemberExerciseAppInfoDto, MemberExerciseAppInfoResponse, UpdateMemberExerciseAppDto, GetMemberExerciseAppListDto, MemberExerciseAppListResponse } from './dto/member-exercise-app.dto';
 import { COMMON_RESPONSE_CODES } from '../core/constants/response-codes';
 
 @Injectable()
-export class MemberExerciseService {
+export class MemberExerciseAppService {
   constructor(
-    @InjectRepository(MemberExercise)
-    private memberExerciseRepository: Repository<MemberExercise>,
+    @InjectRepository(MemberExerciseApp)
+    private memberExerciseAppRepository: Repository<MemberExerciseApp>,
     private dataSource: DataSource
   ) {}
 
-  async insertMemberExercise(insertMemberExerciseDto: InsertMemberExerciseDto): Promise<{ success: boolean; message: string; code: string }> {
+  async insertMemberExerciseApp(insertMemberExerciseAppDto: InsertMemberExerciseAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
       const { 
         mem_id, 
@@ -28,12 +28,12 @@ export class MemberExerciseService {
         reg_id, 
         mod_dt, 
         mod_id 
-      } = insertMemberExerciseDto;
+      } = insertMemberExerciseAppDto;
       // Using the provided SQL query with QueryBuilder
       await this.dataSource
         .createQueryBuilder()
         .insert()
-        .into(MemberExercise)
+        .into(MemberExerciseApp)
         .values({
           mem_id,
           exercise_dt,
@@ -67,10 +67,10 @@ export class MemberExerciseService {
     }
   }
 
-  async updateMemberExercise(updateMemberExerciseDto: UpdateMemberExerciseDto): Promise<{ success: boolean; message: string; code: string }> {
+  async updateMemberExerciseApp(updateMemberExerciseAppDto: UpdateMemberExerciseAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
       const { 
-        exercise_id,
+        exercise_app_id,
         mem_id,
         jumping_exercise_time, 
         jumping_intensity_level,
@@ -78,7 +78,7 @@ export class MemberExerciseService {
         other_exercise_type,
         other_exercise_time,
         other_exercise_calory
-      } = updateMemberExerciseDto;
+      } = updateMemberExerciseAppDto;
 
       // 필드 값 설정
       const updateFields = {
@@ -98,11 +98,11 @@ export class MemberExerciseService {
       }
       
       // Using the provided SQL query with QueryBuilder
-      const result = await this.memberExerciseRepository
+      const result = await this.memberExerciseAppRepository
         .createQueryBuilder()
-        .update(MemberExercise)
+        .update(MemberExerciseApp)
         .set(updateFields)
-        .where("exercise_id = :exercise_id", { exercise_id })
+        .where("exercise_app_id = :exercise_app_id", { exercise_app_id })
         .execute();
 
       if (result.affected === 0) {
@@ -130,14 +130,14 @@ export class MemberExerciseService {
     }
   }
 
-  async getMemberExerciseInfo(getMemberExerciseInfoDto: GetMemberExerciseInfoDto): Promise<{ success: boolean; data: MemberExerciseInfoResponse | null; code: string }> {
+  async getMemberExerciseAppInfo(getMemberExerciseAppInfoDto: GetMemberExerciseAppInfoDto): Promise<{ success: boolean; data: MemberExerciseAppInfoResponse | null; code: string }> {
     try {
-      const { mem_id, exercise_dt } = getMemberExerciseInfoDto;
+      const { mem_id, exercise_dt } = getMemberExerciseAppInfoDto;
       // Using the provided SQL query
-      const exerciseInfo = await this.memberExerciseRepository
+      const exerciseInfo = await this.memberExerciseAppRepository
         .createQueryBuilder('me')
         .select([
-          'exercise_id',
+          'exercise_app_id',
           'mem_id',
           'exercise_dt',
           'jumping_exercise_time',
@@ -176,15 +176,15 @@ export class MemberExerciseService {
     }
   }
 
-  async getMemberExerciseList(getMemberExerciseListDto: GetMemberExerciseListDto): Promise<{ success: boolean; data: MemberExerciseListResponse[] | null; code: string }> {
+  async getMemberExerciseAppList(getMemberExerciseAppListDto: GetMemberExerciseAppListDto): Promise<{ success: boolean; data: MemberExerciseAppListResponse[] | null; code: string }> {
     try {
-      const { mem_id, year_month, period } = getMemberExerciseListDto;
+      const { mem_id, year_month, period } = getMemberExerciseAppListDto;
       
       // 기본 쿼리 빌더
-      const queryBuilder = this.memberExerciseRepository
+      const queryBuilder = this.memberExerciseAppRepository
         .createQueryBuilder('me')
         .select([
-          'exercise_id',
+          'exercise_app_id',
           'mem_id',
           'exercise_dt',
           'jumping_exercise_time',

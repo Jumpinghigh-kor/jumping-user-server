@@ -8,6 +8,9 @@ export class GetInquiryAppListDto {
 }
 
 export class InsertInquiryAppDto {
+  @IsOptional()
+  inquiry_type: string;
+
   @IsNotEmpty()
   title: string;
 
@@ -23,6 +26,9 @@ export class UpdateInquiryAppDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
   inquiry_app_id: number;
+
+  @IsOptional()
+  inquiry_type: string;
 
   @IsOptional()
   title?: string;

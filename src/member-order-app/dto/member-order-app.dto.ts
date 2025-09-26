@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, IsArray, ArrayNotEmpty } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class GetMemberOrdersDto {
@@ -35,4 +35,30 @@ export interface MemberOrderAppResponse {
   review_yn: string;
   return_app_id: number;
   del_yn: string;
-} 
+  order_group: number;
+}
+
+export class InsertMemberOrderAppDto {
+  @IsNumber()
+  @IsNotEmpty()
+  mem_id: number;
+}
+
+export class UpdateOrderStatusDto {
+  @IsNumber()
+  @IsNotEmpty()
+  mem_id: number;
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsNumber({}, { each: true })
+  order_detail_app_ids: number[];
+
+  @IsNumber()
+  @IsOptional()
+  order_group?: number;
+
+  @IsString()
+  @IsNotEmpty()
+  order_status: string;
+}

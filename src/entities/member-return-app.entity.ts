@@ -6,21 +6,45 @@ export class MemberReturnApp {
   return_app_id: number;
   
   @Column()
-  order_app_id: number;
+  order_detail_app_id: number;
+
+  @Column()
+  order_address_id: number;
 
   @Column()
   mem_id: number;
 
   @Column()
-  return_type: string;
-
-  @Column({ type: 'text' })
-  return_status: string;
+  return_applicator: string;
 
   @Column()
+  return_reason_type: string;
+
+  @Column({ type: 'text' })
   reason: string;
 
-  @Column({ length: 1, default: 'N' })
+  @Column()
+  customer_tracking_number: string;
+
+  @Column()
+  company_tracking_number: string;
+
+  @Column()
+  customer_courier_code: string;
+
+  @Column()
+  company_courier_code: string;
+
+  @Column()
+  quantity: number;
+
+  @Column()
+  return_goodsflow_id: number;
+
+  @Column()
+  approval_yn: string;
+
+  @Column()
   cancel_yn: string;
 
   @Column()

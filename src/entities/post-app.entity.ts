@@ -1,15 +1,12 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity('inquiry_app')
-export class InquiryApp {
+@Entity('post_app')
+export class PostApp {
   @PrimaryGeneratedColumn()
-  inquiry_app_id: number;
+  post_app_id: number;
 
-  @Column({ name: 'mem_id' })
-  mem_id: number;
-
-  @Column({ name: 'inquiry_type' })
-  inquiry_type: string;
+  @Column({ name: 'post_type' })
+  post_type: string;
 
   @Column({ name: 'title' })
   title: string;
@@ -17,11 +14,14 @@ export class InquiryApp {
   @Column({ name: 'content' })
   content: string;
 
-  @Column({ name: 'answer', nullable: true })
-  answer: string;
+  @Column({ name: 'all_send_yn', nullable: true })
+  all_send_yn: string;
 
-  @Column({ name: 'answer_dt', nullable: true })
-  answer_dt: string;
+  @Column({ name: 'push_send_yn', nullable: true })
+  push_send_yn: string;
+
+  @Column({ name: 'del_yn', nullable: true })
+  del_yn: string;
 
   @Column({ name: 'reg_dt' })
   reg_dt: string;
@@ -34,7 +34,4 @@ export class InquiryApp {
 
   @Column({ name: 'mod_id', nullable: true })
   mod_id: number;
-
-  @Column({ name: 'del_yn', default: 'N', nullable: true })
-  del_yn: string;
 } 
