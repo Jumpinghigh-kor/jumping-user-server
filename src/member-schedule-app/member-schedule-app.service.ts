@@ -188,7 +188,6 @@ export class MemberScheduleAppService {
           const day = dateStr.substring(6, 8);
           return `${year}년 ${month}월 ${day}일`;
         }
-        console.log(dateStr);
         return dateStr;
       };
 

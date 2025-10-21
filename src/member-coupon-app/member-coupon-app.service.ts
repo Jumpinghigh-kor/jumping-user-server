@@ -4,6 +4,7 @@ import { Repository, DataSource } from 'typeorm';
 import { MemberCouponApp } from './dto/member-coupon-app.dto';
 import { GetMemberCouponAppListDto, MemberCouponAppListResponse, UpdateMemberCouponAppDto } from './dto/member-coupon-app.dto';
 import { COMMON_RESPONSE_CODES } from '../core/constants/response-codes';
+import { getCurrentDateYYYYMMDDHHIISS } from '../core/utils/date.utils';
 
 @Injectable()
 export class MemberCouponAppService {
@@ -68,6 +69,8 @@ export class MemberCouponAppService {
           , 'ca.coupon_notice'
           , 'ca.badge_text'
           , 'ca.end_dt AS full_end_dt'
+          , 'mca.member_coupon_app_id'
+          , 'mca.order_app_id'
           , 'mca.use_yn'
         ])
         .from('member_coupon_app', 'mca')
@@ -166,4 +169,50 @@ export class MemberCouponAppService {
     }
   }
 
-} 
+  async updateMemberCouponApp(updateMemberCouponAppDto: UpdateMemberCouponAppDto): Promise<{ success: boolean; message: string; code: string }> {
+    try {
+      const { member_coupon_app_id, order_app_id, mem_id, use_yn} = updateMemberCouponAppDto;
+      // 현재 시간 (YYYYMMDDHHIISS 형식)
+      const currentDate = getCurrentDateYYYYMMDDHHIISS();
+      
+      // TypeORM QueryBuilder 사용하여 데이터 업데이트
+      const result = await this.dataSource
+        .createQueryBuilder()
+        .update('member_coupon_app')
+        .set({
+          order_app_id: order_app_id,
+          use_yn: use_yn,
+          use_dt: currentDate,
+          mod_dt: currentDate,
+          mod_id: mem_id
+        })
+        .where('member_coupon_app_id = :member_coupon_app_id', { member_coupon_app_id })
+        .execute();
+      
+      if (result.affected === 0) {
+        return {
+          success: false,
+          message: '업데이트할 쿠폰 사용 여부를 찾을 수 없습니다.',
+          code: COMMON_RESPONSE_CODES.NO_DATA
+        };
+      }
+      
+      return {
+        success: true,
+        message: '쿠폰 사용 여부가 성공적으로 업데이트되었습니다.',
+        code: COMMON_RESPONSE_CODES.SUCCESS
+      };
+    } catch (error) {
+      console.error('Error updating coupon use yn:', error);
+      throw new HttpException(
+        {
+          success: false,
+          message: error.message,
+          code: COMMON_RESPONSE_CODES.FAIL
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+}

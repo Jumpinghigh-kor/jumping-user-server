@@ -15,7 +15,7 @@ export class ProductAppService {
   async getProductAppList(getProductAppListDto: GetProductAppListDto): Promise<{ success: boolean; data: ProductAppListResponse[] | null; code: string }> {
     try {
       const { big_category, mem_id } = getProductAppListDto;
-      console.log(mem_id, big_category);
+      
       const queryBuilder = this.productAppRepository
         .createQueryBuilder('p')
         .select([
@@ -31,6 +31,7 @@ export class ProductAppService {
           , 'sell_start_dt'
           , 'sell_end_dt'
           , 'courier_code'
+          , 'return_delivery_fee'
           , 'FORMAT(delivery_fee, 0) AS delivery_fee'
           , 'remote_delivery_fee AS remote_delivery_fee'
           , 'FORMAT(free_shipping_amount, 0) AS free_shipping_amount'
@@ -201,6 +202,7 @@ export class ProductAppService {
           'pa.sell_start_dt AS sell_start_dt',
           'pa.sell_end_dt AS sell_end_dt',
           'pa.courier_code AS courier_code',
+          'pa.return_delivery_fee AS return_delivery_fee',
           'FORMAT(pa.delivery_fee, 0) AS delivery_fee',
           'pa.remote_delivery_fee AS remote_delivery_fee',
           'FORMAT(pa.free_shipping_amount, 0) AS free_shipping_amount',
@@ -263,6 +265,7 @@ export class ProductAppService {
           'pa.sell_start_dt AS sell_start_dt',
           'pa.sell_end_dt AS sell_end_dt',
           'pa.courier_code AS courier_code',
+          'pa.return_delivery_fee AS return_delivery_fee',
           'FORMAT(pa.delivery_fee, 0) AS delivery_fee',
           'pa.remote_delivery_fee AS remote_delivery_fee',
           'FORMAT(pa.free_shipping_amount, 0) AS free_shipping_amount',

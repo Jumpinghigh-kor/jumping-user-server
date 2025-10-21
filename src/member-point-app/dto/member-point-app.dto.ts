@@ -80,3 +80,21 @@ export class GetMemberPointAppListDto {
   @IsNotEmpty()
   reg_ym: string;
 } 
+
+export class InsertMemberPointAppDto {
+  @IsNumber()
+  @IsNotEmpty()
+  order_app_id: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  mem_id: number;
+
+  @IsString()
+  @IsNotEmpty()
+  point_status: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  point_amount: number;
+}

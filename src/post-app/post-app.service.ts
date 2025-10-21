@@ -148,7 +148,7 @@ export class PostAppService {
   async deleteMemberPostApp(deleteMemberPostAppDto: DeleteMemberPostAppDto): Promise<{ success: boolean; message: string; code: string }> {
     try {
       const { mem_id, post_app_id } = deleteMemberPostAppDto;
-      console.log(post_app_id);
+      
       const reg_dt = getCurrentDateYYYYMMDDHHIISS();
       
       await this.postAppRepository

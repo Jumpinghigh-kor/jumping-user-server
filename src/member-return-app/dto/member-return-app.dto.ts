@@ -82,6 +82,28 @@ export class GetMemberReturnAppDto {
   @IsString()
   @IsNotEmpty()
   mem_id: string;
+
+  @IsNumber()
+  @IsOptional()
+  order_detail_app_id: number;
+
+  @IsString()
+  @IsOptional()
+  type: string;
+
+  @IsString()
+  @IsOptional()
+  search_content: string;
+
+  @IsString()
+  @IsOptional()
+  year: string;
+}
+
+export class GetMemberReturnAppDetailDto {
+  @IsNumber()
+  @IsNotEmpty()
+  return_app_id: number;
 }
 
 export class InsertMemberReturnAppDto {
@@ -98,10 +120,6 @@ export class InsertMemberReturnAppDto {
   mem_id: string;
 
   @IsString()
-  @IsNotEmpty()
-  return_applicator: string;
-
-  @IsString()
   @IsOptional()
   return_reason_type: string;
 
@@ -109,9 +127,9 @@ export class InsertMemberReturnAppDto {
   @IsOptional()
   reason: string;
 
-  @IsArray()
-  @IsOptional()
-  file_ids?: number[];
+  @IsNumber()
+  @IsNotEmpty()
+  quantity: number;
 }
 
 export class CancelMemberReturnAppDto {
@@ -133,6 +151,10 @@ export class UpdateMemberReturnAppDto {
   @IsNotEmpty()
   order_detail_app_ids: number[];
 
+  @IsNumber()
+  @IsNotEmpty()
+  quantity: number;
+
   @IsString()
   @IsNotEmpty()
   cancel_yn: string;
@@ -144,4 +166,32 @@ export class UpdateMemberReturnAppDto {
   @IsString()
   @IsOptional()
   reason: string;
+}
+
+export class UpdateMemberReturnAppOrderAddressIdDto {
+  @IsNumber()
+  @IsNotEmpty()
+  order_detail_app_id: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  order_address_id: number;
+
+  @IsString()
+  @IsNotEmpty()
+  mem_id: string;
+}
+
+export class UpdateMemberReturnAppCancelYnDto {
+  @IsString()
+  @IsNotEmpty()
+  mem_id: string;
+
+  @IsArray()
+  @IsNotEmpty()
+  order_detail_app_ids: number[];
+
+  @IsString()
+  @IsNotEmpty()
+  cancel_yn: string;
 }

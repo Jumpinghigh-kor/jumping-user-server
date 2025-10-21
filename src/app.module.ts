@@ -49,6 +49,9 @@ import { MemberOrderAddress } from './entities/member-order-address.entity';
 import { PostApp } from './entities/post-app.entity';
 import { MemberPostApp } from './entities/member-post-app.entity';
 import { PostAppModule } from './post-app/post-app.module';
+import { MemberOrderAddressModule } from './member-order-address/member-order-address.module';
+import { MemberPaymentApp } from './entities/member-payment-app.entity';
+import { MemberPaymentAppModule } from './member-payment-app/member-payment-app.module';
 
 @Module({
   imports: [
@@ -62,7 +65,7 @@ import { PostAppModule } from './post-app/post-app.module';
       username: process.env.DB_USERNAME || 'root',
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_DATABASE || 'jumping',
-      entities: [Member, CheckinLog, MemberExerciseApp, Notice, NoticesApp, InquiryApp, InquiryShoppingApp, RefreshToken, BannerApp, ProductApp, MemberReviewApp, MemberSchedule, MemberCartApp, MemberOrderApp, MemberOrderAddress, PostApp, MemberPostApp],
+      entities: [Member, CheckinLog, MemberExerciseApp, Notice, NoticesApp, InquiryApp, InquiryShoppingApp, RefreshToken, BannerApp, ProductApp, MemberReviewApp, MemberSchedule, MemberCartApp, MemberOrderApp, MemberOrderAddress, PostApp, MemberPostApp, MemberPaymentApp],
       synchronize: false, // 데이터 보존을 위해 false로 설정
     }),
     AuthModule,
@@ -93,7 +96,9 @@ import { PostAppModule } from './post-app/post-app.module';
     EventAppModule,
     MemberAlarmAppModule,
     ReturnExchangePolicyModule,
-    PostAppModule
+    PostAppModule,
+    MemberOrderAddressModule,
+    MemberPaymentAppModule
   ],
   controllers: [AppController],
   providers: [AppService],

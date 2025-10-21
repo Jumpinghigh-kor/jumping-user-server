@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DataSource } from 'typeorm';
 import { COMMON_RESPONSE_CODES } from '../core/constants/response-codes';
+import { getCurrentDateYYYYMMDDHHIISS } from '../core/utils/date.utils';
+import { InsertMemberPointAppDto } from './dto/member-point-app.dto';
 
 @Injectable()
 export class MemberPointAppService {
@@ -53,6 +55,48 @@ export class MemberPointAppService {
       };
     } catch (error) {
       console.error('Error fetching member point app list:', error);
+      throw new HttpException(
+        {
+          success: false,
+          message: error.message,
+          code: COMMON_RESPONSE_CODES.FAIL
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async insertMemberPointApp(insertMemberPointAppDto: InsertMemberPointAppDto): Promise<{ success: boolean; data: { point_app_id: number } | null; code: string }> {
+    try {
+      const { order_app_id, mem_id, point_status, point_amount } = insertMemberPointAppDto;
+      const reg_dt = getCurrentDateYYYYMMDDHHIISS();
+      
+      const result = await this.dataSource
+        .createQueryBuilder()
+        .insert()
+        .into('member_point_app')
+        .values({
+          mem_id
+          , order_app_id: order_app_id
+          , point_status: point_status
+          , point_amount: point_amount
+          , del_yn: 'N'
+          , reg_dt: reg_dt
+          , reg_id: mem_id
+          , mod_dt: null
+          , mod_id: null
+        })
+        .execute();
+      
+      const point_app_id = (result as any)?.identifiers?.[0]?.point_app_id ?? (result as any)?.raw?.insertId;
+      
+      return {
+        success: true,
+        data: { point_app_id },
+        code: COMMON_RESPONSE_CODES.SUCCESS
+      };
+    } catch (error) {
+      console.error('Error creating point:', error);
       throw new HttpException(
         {
           success: false,

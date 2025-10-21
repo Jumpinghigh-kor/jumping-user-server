@@ -1,6 +1,6 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { MemberReturnAppService } from './member-return-app.service';
-import { CancelMemberReturnAppDto, GetMemberReturnAppDto, InsertMemberReturnAppDto, UpdateMemberReturnAppDto } from './dto/member-return-app.dto';
+import { GetMemberReturnAppDto, InsertMemberReturnAppDto, UpdateMemberReturnAppDto, UpdateMemberReturnAppOrderAddressIdDto, UpdateMemberReturnAppCancelYnDto, GetMemberReturnAppDetailDto } from './dto/member-return-app.dto';
 
 @Controller('member-return-app')
 export class MemberReturnAppController {
@@ -10,13 +10,18 @@ export class MemberReturnAppController {
 
   @Post('/getMemberReturnAppList')
   getMemberReturnAppList(@Body() getMemberReturnAppDto: GetMemberReturnAppDto) {
-    return this.memberReturnAppService.getMemberReturnAppList(getMemberReturnAppDto.mem_id);
+    return this.memberReturnAppService.getMemberReturnAppList(getMemberReturnAppDto.mem_id, getMemberReturnAppDto.order_detail_app_id, getMemberReturnAppDto.type, getMemberReturnAppDto.search_content, getMemberReturnAppDto.year);
+  }
+
+  @Post('/getMemberReturnAppDetail')
+  getMemberReturnAppDetail(@Body() getMemberReturnAppDetailDto: GetMemberReturnAppDetailDto) {
+    return this.memberReturnAppService.getMemberReturnAppDetail(getMemberReturnAppDetailDto);
   }
 
   @Post('/insertMemberReturnApp')
   async insertMemberReturnApp(
     @Body() insertMemberReturnAppDto: InsertMemberReturnAppDto | InsertMemberReturnAppDto[]
-  ): Promise<{ success: boolean; data: any | null; code: string }> {
+  ): Promise<{ success: boolean; message: string; code: string }> {
     return this.memberReturnAppService.insertMemberReturnApp(insertMemberReturnAppDto as InsertMemberReturnAppDto[]);
   }
 
@@ -29,14 +34,22 @@ export class MemberReturnAppController {
       order_detail_app_ids: updateMemberReturnAppDto.order_detail_app_ids,
       return_reason_type: updateMemberReturnAppDto.return_reason_type,
       reason: updateMemberReturnAppDto.reason,
+      quantity: updateMemberReturnAppDto.quantity,
       cancel_yn: updateMemberReturnAppDto.cancel_yn
     });
   }
 
-  @Post('/cancelMemberReturnApp')
-  async cancelMemberReturnApp(
-    @Body() cancelMemberReturnAppDto: CancelMemberReturnAppDto
+  @Post('/updateMemberReturnAppOrderAddressId')
+  async updateMemberReturnAppOrderAddressId(
+    @Body() updateMemberReturnAppOrderAddressIdDto: UpdateMemberReturnAppOrderAddressIdDto
   ): Promise<{ success: boolean; data: any | null; code: string }> {
-    return this.memberReturnAppService.cancelMemberReturnApp(cancelMemberReturnAppDto);
+    return this.memberReturnAppService.updateMemberReturnAppOrderAddressId(updateMemberReturnAppOrderAddressIdDto);
+  }
+
+  @Post('/updateMemberReturnAppCancelYn')
+  async updateMemberReturnAppCancelYn(
+    @Body() updateMemberReturnAppCancelYnDto: UpdateMemberReturnAppCancelYnDto
+  ): Promise<{ success: boolean; data: any | null; code: string }> {
+    return this.memberReturnAppService.updateMemberReturnAppCancelYn(updateMemberReturnAppCancelYnDto);
   }
 } 

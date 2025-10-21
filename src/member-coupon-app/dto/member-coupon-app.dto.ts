@@ -78,16 +78,17 @@ export class DeleteMemberCouponAppDto {
 export class UpdateMemberCouponAppDto {
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  mem_id: number;
-
-  @IsNotEmpty()
-  @Transform(({ value }) => Number(value))
   member_coupon_app_id: number;
 
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))
-  coupon_app_id: number;
+  mem_id: number;
 
-  @IsOptional()
+  @IsNotEmpty()
+  @Transform(({ value }) => Number(value))
+  order_app_id: number;
+
+  @IsNotEmpty()
+  @Transform(({ value }) => Number(value))
   use_yn: string;
 } 

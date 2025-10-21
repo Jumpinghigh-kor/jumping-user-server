@@ -44,6 +44,32 @@ export class InsertMemberOrderAppDto {
   mem_id: number;
 }
 
+export class InsertMemberOrderDetailAppDto {
+  @IsNumber()
+  @IsNotEmpty()
+  mem_id: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  order_app_id: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  product_detail_app_id: number;
+
+  @IsString()
+  @IsNotEmpty()
+  order_status: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  order_quantity: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  order_group: number;
+}
+
 export class UpdateOrderStatusDto {
   @IsNumber()
   @IsNotEmpty()
@@ -61,4 +87,45 @@ export class UpdateOrderStatusDto {
   @IsString()
   @IsNotEmpty()
   order_status: string;
+}
+
+export class UpdateOrderQuantityDto {
+  @IsNumber()
+  @IsNotEmpty()
+  mem_id: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  order_detail_app_id: number[];
+
+  @IsNumber()
+  @IsNotEmpty()
+  order_quantity: number;
+}
+
+export class UpdateMemberOrderDetailAppDto {
+  @IsNumber()
+  @IsNotEmpty()
+  mem_id: number;
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsNumber({}, { each: true })
+  order_detail_app_ids: number[];
+
+  @IsString()
+  @IsNotEmpty()
+  courier_code: string;
+
+  @IsString()
+  @IsNotEmpty()
+  tracking_number: string;
+  
+  @IsString()
+  @IsNotEmpty()
+  goodsflow_id: string;
+
+  @IsString()
+  @IsOptional()
+  purchase_confirm_dt: string;
 }

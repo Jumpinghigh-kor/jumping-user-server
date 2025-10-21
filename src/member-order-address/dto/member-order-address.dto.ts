@@ -42,7 +42,7 @@ export class InsertMemberOrderAddressDto {
   @IsNotEmpty()
   address_detail: string;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
   zip_code: string;
 
@@ -57,4 +57,102 @@ export class InsertMemberOrderAddressDto {
   @IsOptional()
   @IsString()
   delivery_request: string;
-} 
+}
+
+export class UpdateMemberOrderAddressDto {
+  @IsNumber()
+  @IsNotEmpty()
+  order_address_id: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  mem_id: number;
+
+  @IsString()
+  @IsNotEmpty()
+  receiver_name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  receiver_phone: string;
+
+  @IsString()
+  @IsNotEmpty()
+  address: string;
+
+  @IsString()
+  @IsNotEmpty()
+  address_detail: string;
+
+  @IsString()
+  @IsNotEmpty()
+  zip_code: string;
+
+  @IsOptional()
+  @IsString()
+  enter_way: string;
+
+  @IsOptional()
+  @IsString()
+  enter_memo: string;
+
+  @IsOptional()
+  @IsString()
+  delivery_request: string;
+
+  @IsString()
+  @IsNotEmpty()
+  use_yn: string;
+}
+
+export class UpdateMemberOrderAddressTypeDto {  
+  @IsNumber()
+  @IsNotEmpty()
+  order_address_id: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  mem_id: number;
+
+  @IsString()
+  @IsNotEmpty()
+  order_address_type: string;
+}
+
+export class DeleteMemberOrderAddressDto {
+  @IsNumber()
+  @IsNotEmpty()
+  order_detail_app_id: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  mem_id: number;
+}
+
+export class UpdateMemberOrderAddressUseYnDto {
+  @IsNumber()
+  @IsNotEmpty()
+  order_address_id: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  mem_id: number;
+
+  @IsString()
+  @IsNotEmpty()
+  use_yn: string;
+}
+
+export class UpdateOrderDetailAppIdDto {
+  @IsNumber()
+  @IsNotEmpty()
+  mem_id: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  order_address_id: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  order_detail_app_id: number;
+}

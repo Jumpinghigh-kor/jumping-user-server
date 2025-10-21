@@ -32,28 +32,28 @@ export class InsertMemberPaymentAppDto {
   @IsNotEmpty()
   mem_id: number;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
   payment_status: string;
 
-  @IsNumber()
-  @IsNotEmpty()
-  payment_type: number;
-
-  @IsOptional()
   @IsString()
+  @IsNotEmpty()
+  payment_type: string;
+
+  @IsString()
+  @IsNotEmpty()
   payment_method: string;
 
   @IsNumber()
   @IsNotEmpty()
   payment_amount: number;
 
-  @IsOptional()
   @IsString()
+  @IsNotEmpty()
   portone_imp_uid: string;
 
-  @IsOptional()
   @IsString()
+  @IsNotEmpty()
   portone_merchant_uid: string;
 
   @IsString()

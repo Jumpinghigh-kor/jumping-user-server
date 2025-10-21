@@ -13,6 +13,7 @@ export class MemberPaymentAppController {
   async insertMemberPaymentApp(
     @Body() insertMemberPaymentAppDto: InsertMemberPaymentAppDto
   ): Promise<{ success: boolean; data: { payment_app_id: number } | null; code: string }> {
+    console.log(insertMemberPaymentAppDto);
     try {
       return this.memberPaymentAppService.insertMemberPaymentApp(insertMemberPaymentAppDto);
     } catch (error) {

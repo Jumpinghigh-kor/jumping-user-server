@@ -30,4 +30,10 @@ export class MemberCouponAppController {
     return this.memberCouponAppService.insertMemberCouponApp(couponData);
   }
 
+  @Post('updateMemberCouponApp')
+  async updateMemberCouponApp(
+    @Body() updateMemberCouponAppDto: UpdateMemberCouponAppDto
+  ): Promise<{ success: boolean; message: string; code: string }> {
+    return this.memberCouponAppService.updateMemberCouponApp(updateMemberCouponAppDto);
+  }
 } 

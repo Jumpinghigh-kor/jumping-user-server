@@ -4,8 +4,8 @@ import { Repository, DataSource } from 'typeorm';
 import { Member } from '../entities/member.entity';
 import { COMMON_RESPONSE_CODES } from '../core/constants/response-codes';
 import { getCurrentDateYYYYMMDDHHIISS } from '../core/utils/date.utils';
-import { InsertMemberOrderAppDto } from './dto/member-order-app.dto';
-import { UpdateOrderStatusDto } from './dto/member-order-app.dto';
+import { InsertMemberOrderAppDto, InsertMemberOrderDetailAppDto } from './dto/member-order-app.dto';
+import { UpdateOrderStatusDto, UpdateOrderQuantityDto, UpdateMemberOrderDetailAppDto } from './dto/member-order-app.dto';
 
 @Injectable()
 export class MemberOrderAppService {
@@ -14,6 +14,7 @@ export class MemberOrderAppService {
   ) {}
 
   async getMemberOrderAppList(mem_id: string, screen_type: string, year: string, search_title: string): Promise<{ success: boolean; data: any[] | null; code: string }> {
+
     try {
       const subQuery = this.dataSource.manager
         .createQueryBuilder()
@@ -24,8 +25,10 @@ export class MemberOrderAppService {
           , 'pa.title AS product_title'
           , 'pa.courier_code AS courier_code'
           , 'pa.discount AS discount'
+          , 'pa.give_point AS give_point'
+          , 'pa.remote_delivery_fee AS remote_delivery_fee'
           , 'FORMAT(pa.delivery_fee, 0) AS delivery_fee'
-          , 'FORMAT(pa.free_shipping_amount, 0) AS free_shipping_amount'
+          , 'pa.free_shipping_amount AS free_shipping_amount'
           , 'pa.inquiry_phone_number AS inquiry_phone_number'
           , 'pa.today_send_yn AS today_send_yn'
           , 'CONCAT(SUBSTRING(pa.today_send_time, 1, 2), ":", SUBSTRING(pa.today_send_time, 3, 2)) AS today_send_time'
@@ -60,33 +63,25 @@ export class MemberOrderAppService {
             ) AS review_yn`
             , 'moa.order_app_id AS order_app_id'
             , 'moda.order_detail_app_id AS order_detail_app_id'
+            , 'pa.return_delivery_fee AS return_delivery_fee'
             , 'moda.order_status AS order_status'
             , 'moda.order_quantity AS order_quantity'
             , 'DATE_FORMAT(moa.order_dt, "%y.%m.%d") AS order_dt'
             , 'moda.tracking_number AS tracking_number'
+            , 'moda.purchase_confirm_dt AS purchase_confirm_dt'
+            , 'moda.goodsflow_id AS goodsflow_id'
+            , 'mra.approval_yn AS approval_yn'
+            , 'mra.return_app_id AS return_app_id'
+            , 'mra.return_reason_type AS return_reason_type'
+            , 'mra.reason AS reason'
             , `
                 (
                   SELECT
                     smoa.receiver_name
                   FROM  member_order_address smoa
                   WHERE smoa.order_detail_app_id = moda.order_detail_app_id
+                  AND   smoa.use_yn = 'Y'
                 ) AS receiver_name
-              `
-            , `
-                (
-                  SELECT
-                    smra.return_app_id AS return_app_id
-                  FROM  member_return_app smra
-                  WHERE smra.order_detail_app_id = moda.order_detail_app_id
-                ) AS return_app_id
-              `
-            , `
-                (
-                  SELECT
-                    smra.approval_yn AS approval_yn
-                  FROM  member_return_app smra
-                  WHERE smra.order_detail_app_id = moda.order_detail_app_id
-                ) AS approval_yn
               `
             , `
             		(
@@ -97,13 +92,61 @@ export class MemberOrderAppService {
                   AND		smpa.payment_type = 'PRODUCT_BUY'
                 )	AS 	payment_app_id
               `
+            , `
+              (
+                SELECT
+                  smoa.order_address_id
+                FROM  member_order_address smoa
+                WHERE smoa.order_detail_app_id = moda.order_detail_app_id
+                AND   smoa.order_address_type = 'ORDER'
+                ORDER BY smoa.order_address_id DESC
+                LIMIT 1
+              ) AS order_address_id
+            `
+            , `
+              (
+                SELECT
+                  COUNT(*)
+                FROM        member_order_address smoa
+                INNER JOIN  extra_shipping_area sesa ON smoa.zip_code = sesa.zip_code
+                WHERE       smoa.order_detail_app_id = mra.order_detail_app_id
+                AND         smoa.order_address_type = 'RETURN'
+                AND         smoa.use_yn = 'Y'
+              ) AS extra_shipping_area_cnt
+            `
+            , `
+              (
+                SELECT
+                  SUM(smpa.payment_amount)
+                FROM  member_payment_app smpa
+                WHERE smpa.order_app_id = moa.order_app_id
+              ) AS total_payment_amount
+            `
+            , `
+              (
+                SELECT
+                  SUM(smpa.refund_amount)
+                FROM  member_payment_app smpa
+                WHERE smpa.order_app_id = moa.order_app_id
+              ) AS total_refund_amount
+            `
+            , `
+              (
+                SELECT
+                  SUM(smpa.payment_amount)
+                FROM  member_payment_app smpa
+                WHERE smpa.order_app_id = moa.order_app_id
+                AND   smpa.payment_status = 'PAYMENT_COMPLETE'
+                AND   smpa.payment_type = 'DELIVERY_FEE'
+              ) AS total_delivery_fee_amount
+            `
         ])
         .from('members', 'm')
         .innerJoin('member_order_app', 'moa', 'm.mem_id = moa.mem_id')
         .leftJoin('member_order_detail_app', 'moda', 'moa.order_app_id = moda.order_app_id')
         .leftJoin('product_detail_app', 'pda', 'moda.product_detail_app_id = pda.product_detail_app_id')
         .leftJoin('product_app', 'pa', 'pda.product_app_id = pa.product_app_id')
-        .leftJoin('member_return_app', 'mpa', 'moda.order_detail_app_id = mpa.order_detail_app_id')
+        .leftJoin('member_return_app', 'mra', 'moda.order_detail_app_id = mra.order_detail_app_id AND mra.del_yn = "N"')
         .where('moa.mem_id = :mem_id', { mem_id })
         .andWhere('moa.del_yn = :del_yn', { del_yn: 'N' })
         .orderBy('moa.order_dt', 'DESC');
@@ -156,13 +199,13 @@ export class MemberOrderAppService {
     }
   }
 
-  async insertMemberOrderApp(insertMemberOrderAppDto: InsertMemberOrderAppDto): Promise<{ success: boolean; message: string; code: string }> {
+  async insertMemberOrderApp(insertMemberOrderAppDto: InsertMemberOrderAppDto): Promise<{ success: boolean; message: string; code: string; order_app_id: number | null }> {
     try {
       const { mem_id } = insertMemberOrderAppDto;
       
       const reg_dt = getCurrentDateYYYYMMDDHHIISS();
       
-      await this.dataSource
+      const result = await this.dataSource
         .createQueryBuilder()
         .insert()
         .into('member_order_app')
@@ -181,13 +224,127 @@ export class MemberOrderAppService {
         })
         .execute();
       
+      const insertedId: number | null =
+        (result as any)?.identifiers?.[0]?.order_app_id ??
+        (result as any)?.raw?.insertId ??
+        null;
+      
       return {
         success: true,
         message: '주문 정보가 성공적으로 등록되었습니다.',
-        code: COMMON_RESPONSE_CODES.SUCCESS
+        code: COMMON_RESPONSE_CODES.SUCCESS,
+        order_app_id: insertedId
       };
     } catch (error) {
       console.error('Error creating order:', error);
+      throw new HttpException(
+        {
+          success: false,
+          message: error.message,
+          code: COMMON_RESPONSE_CODES.FAIL
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async insertMemberOrderDetailApp(insertMemberOrderDetailAppDto: InsertMemberOrderDetailAppDto): Promise<{ success: boolean; message: string; code: string; order_detail_app_id: number | null }> {
+    try {
+      const { mem_id,order_app_id, product_detail_app_id, order_status, order_quantity } = insertMemberOrderDetailAppDto;
+      
+      const reg_dt = getCurrentDateYYYYMMDDHHIISS();
+
+      // Optional shipping/payment related fields: use provided values or default to null
+      const courier_code = (insertMemberOrderDetailAppDto as any).courier_code ?? null;
+      const tracking_number = (insertMemberOrderDetailAppDto as any).tracking_number ?? null;
+      const goodsflow_id = (insertMemberOrderDetailAppDto as any).goodsflow_id ?? null;
+      const purchase_confirm_dt = (insertMemberOrderDetailAppDto as any).purchase_confirm_dt ?? null;
+      
+      const order_group_result = await this.dataSource
+        .createQueryBuilder()
+        .select('MAX(moda.order_group) + 1 AS max_order_group')
+        .from('member_order_detail_app', 'moda')
+        .where('moda.order_app_id = :order_app_id', { order_app_id: order_app_id })
+        .getRawOne();
+
+      const result = await this.dataSource
+        .createQueryBuilder()
+        .insert()
+        .into('member_order_detail_app')
+        .values({
+          order_app_id: order_app_id
+          , product_detail_app_id: product_detail_app_id
+          , order_status: order_status
+          , order_quantity: order_quantity
+          , order_group: order_group_result.max_order_group
+          , courier_code: courier_code
+          , tracking_number: tracking_number
+          , goodsflow_id: goodsflow_id
+          , purchase_confirm_dt: purchase_confirm_dt
+          , reg_dt: reg_dt
+          , reg_id: mem_id
+          , mod_dt: null
+          , mod_id: null
+        })
+        .execute();
+      
+      const insertedId: number | null =
+        (result as any)?.identifiers?.[0]?.order_detail_app_id ??
+        (result as any)?.raw?.insertId ??
+        null;
+      
+      return {
+        success: true,
+        message: '주문 상세 정보가 성공적으로 등록되었습니다.',
+        code: COMMON_RESPONSE_CODES.SUCCESS,
+        order_detail_app_id: insertedId
+      };
+    } catch (error) {
+      console.error('Error creating order detail:', error);
+      throw new HttpException(
+        {
+          success: false,
+          message: error.message,
+          code: COMMON_RESPONSE_CODES.FAIL
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async updateMemberOrderDetailApp(updateData: UpdateMemberOrderDetailAppDto): Promise<{ success: boolean; message: string; code: string }> {
+    try {
+      const { mem_id, order_detail_app_ids, courier_code, tracking_number, goodsflow_id, purchase_confirm_dt } = updateData;
+      
+
+      const result = await this.dataSource
+        .createQueryBuilder()
+        .update('member_order_detail_app')
+        .set({
+          courier_code: courier_code,
+          tracking_number: tracking_number,
+          goodsflow_id: goodsflow_id,
+          purchase_confirm_dt: purchase_confirm_dt,
+          mod_dt: getCurrentDateYYYYMMDDHHIISS(),
+          mod_id: mem_id
+        })
+        .where("order_detail_app_id IN (:...order_detail_app_ids)", { order_detail_app_ids: order_detail_app_ids })
+        .execute();
+
+      if (result.affected === 0) {
+        return {
+          success: false,
+          message: '업데이트할 주문 정보를 찾을 수 없습니다.',
+          code: COMMON_RESPONSE_CODES.NO_DATA
+        };
+      }
+
+      return {
+        success: true,
+        message: '주문 상태가 수정되었습니다',
+        code: COMMON_RESPONSE_CODES.SUCCESS
+      };
+    } catch (error) {
       throw new HttpException(
         {
           success: false,
@@ -205,9 +362,13 @@ export class MemberOrderAppService {
       
       const setPayload: any = {
         order_status: order_status,
-        mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
+        mod_dt: getCurrentDateYYYYMMDDHHIISS(),
         mod_id: mem_id
       };
+
+      if (order_status == 'PURCHASE_CONFIRM') {
+        setPayload.purchase_confirm_dt = getCurrentDateYYYYMMDDHHIISS();
+      }
 
       if (order_group !== undefined && order_group !== null) {
         setPayload.order_group = order_group;
@@ -230,7 +391,49 @@ export class MemberOrderAppService {
 
       return {
         success: true,
-        message: '장바구니가 수정되었습니다',
+        message: '주문 상태가 수정되었습니다',
+        code: COMMON_RESPONSE_CODES.SUCCESS
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message: error.message,
+          code: COMMON_RESPONSE_CODES.FAIL
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async updateOrderQuantity(updateData: UpdateOrderQuantityDto): Promise<{ success: boolean; message: string; code: string }> {
+    try {
+      const { mem_id, order_detail_app_id, order_quantity } = updateData;
+
+      const setPayload: any = {
+        order_quantity: order_quantity,
+        mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
+        mod_id: mem_id
+      };
+
+      const result = await this.dataSource
+        .createQueryBuilder()
+        .update('member_order_detail_app')
+        .set(setPayload)
+        .where("order_detail_app_id = :order_detail_app_id", { order_detail_app_id: order_detail_app_id })
+        .execute();
+
+      if (result.affected === 0) {
+        return {
+          success: false,
+          message: '업데이트할 주문 정보를 찾을 수 없습니다.',
+          code: COMMON_RESPONSE_CODES.NO_DATA
+        };
+      }
+
+      return {
+        success: true,
+        message: '주문 수량이 수정되었습니다',
         code: COMMON_RESPONSE_CODES.SUCCESS
       };
     } catch (error) {
