@@ -32,7 +32,12 @@ export class GetMemberZzimAppListDto {
 }
 
 export class GetMemberZzimAppDetailDto {
-  mem_id: string;
+  @IsNotEmpty()
+  @Transform(({ value }) => Number(value))
+  mem_id: number;
+
+  @IsNotEmpty()
+  @Transform(({ value }) => Number(value))
   product_app_id: number;
 }
 

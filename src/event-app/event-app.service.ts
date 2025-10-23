@@ -29,7 +29,6 @@ export class EventAppService {
         .leftJoin('event_app_img', 'eai', 'ea.event_app_id = eai.event_app_id')
         .leftJoin('common_file', 'cf', 'eai.file_id = cf.file_id')
         .where('ea.event_app_id = :event_app_id', { event_app_id })
-        .andWhere('ea.use_yn = :use_yn', { use_yn: 'Y' })
         .andWhere('ea.del_yn = :del_yn', { del_yn: 'N' })
         .andWhere('eai.del_yn = :del_yn', { del_yn: 'N' })
         .getRawMany();
