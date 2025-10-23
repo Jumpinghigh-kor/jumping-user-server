@@ -238,6 +238,7 @@ export class MemberService {
         .set({
           mem_nickname,
           mem_app_status: 'ACTIVE',
+          app_active_dt: app_mod_dt,
           app_mod_dt,
           app_mod_id: mem_id
         })
