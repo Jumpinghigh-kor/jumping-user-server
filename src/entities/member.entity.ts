@@ -21,6 +21,9 @@ export class Member {
   @Column({ name: 'center_id' })
   center_id: string;
 
+  @Column({ name: 'app_active_dt', nullable: true })
+  app_active_dt: string;
+
   @Column({ nullable: true })
   app_exit_dt: string;
 

@@ -228,9 +228,6 @@ export class MemberService {
     try {
       const { mem_id, mem_nickname } = data;
       
-      // 현재 시간 포맷팅 (YYYYMMDDHHIISS)
-      const app_mod_dt = () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')";
-
       // Update member record
       const result = await this.memberRepository
         .createQueryBuilder()
@@ -238,8 +235,8 @@ export class MemberService {
         .set({
           mem_nickname,
           mem_app_status: 'ACTIVE',
-          app_active_dt: app_mod_dt,
-          app_mod_dt,
+          app_active_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
+          app_mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
           app_mod_id: mem_id
         })
         .where("mem_id = :mem_id", { mem_id })
