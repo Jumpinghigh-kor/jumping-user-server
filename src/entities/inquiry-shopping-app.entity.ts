@@ -8,20 +8,14 @@ export class InquiryShoppingApp {
   @Column({ name: 'mem_id' })
   mem_id: number;
 
-  @Column({ name: 'inquiry_type' })
-  inquiry_type: string;
-
-  @Column({ name: 'title' })
-  title: string;
+  @Column({ name: 'product_app_id' })
+  product_app_id: number;
 
   @Column({ name: 'content' })
   content: string;
-
-  @Column({ name: 'answer', nullable: true })
-  answer: string;
-
-  @Column({ name: 'answer_dt', nullable: true })
-  answer_dt: string;
+  
+  @Column({ name: 'del_yn', default: 'N', nullable: true })
+  del_yn: string;
 
   @Column({ name: 'reg_dt' })
   reg_dt: string;
@@ -34,7 +28,4 @@ export class InquiryShoppingApp {
 
   @Column({ name: 'mod_id', nullable: true })
   mod_id: number;
-
-  @Column({ name: 'del_yn', default: 'N', nullable: true })
-  del_yn: string;
 } 

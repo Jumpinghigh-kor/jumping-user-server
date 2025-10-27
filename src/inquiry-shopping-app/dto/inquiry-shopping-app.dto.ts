@@ -16,25 +16,13 @@ export class InquiryShoppingAppDto {
   @IsNotEmpty()
   mem_id: number;
 
-  @IsString()
-  @IsOptional()
-  inquiry_type: string;
-  
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
-  title: string;
-  
+  product_app_id: number;
+
   @IsString()
   @IsNotEmpty()
   content: string;
-
-  @IsString()
-  @IsOptional()
-  answer: string;
-
-  @IsString()
-  @IsOptional()
-  answer_dt: string;
 
   @IsString()
   @IsOptional()
@@ -64,11 +52,7 @@ export class InsertInquiryShoppingAppDto {
 
   @IsString()
   @IsNotEmpty()
-  inquiry_type: string;
-
-  @IsString()
-  @IsNotEmpty()
-  title: string;
+  product_app_id: number;
 
   @IsString()
   @IsNotEmpty()
@@ -76,9 +60,8 @@ export class InsertInquiryShoppingAppDto {
 }
 
 export interface InquiryShoppingAppListResponse {
-  title: string;
   content: string;
-  inquiry_app_id: number;
+  inquiry_shopping_app_id: number;
   reg_dt: string;
 }
 
@@ -87,13 +70,7 @@ export class UpdateInquiryShoppingAppDto {
   @Transform(({ value }) => Number(value))
   inquiry_shopping_app_id: number;
 
-  @IsOptional()
-  inquiry_type: string;
-
-  @IsOptional()
-  title?: string;
-
-  @IsOptional()
+  @IsNotEmpty()
   content?: string;
 
   @IsOptional()

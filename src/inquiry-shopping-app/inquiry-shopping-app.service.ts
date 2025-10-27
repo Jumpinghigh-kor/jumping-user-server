@@ -62,8 +62,7 @@ export class InquiryShoppingAppService {
     try {
       const { 
         mem_id,
-        inquiry_type,
-        title,
+        product_app_id,
         content
       } = insertInquiryAppDto;
 
@@ -73,11 +72,8 @@ export class InquiryShoppingAppService {
         .into(InquiryShoppingApp)
         .values({
           mem_id,
-          inquiry_type,
-          title,
+          product_app_id,
           content,
-          answer: undefined,
-          answer_dt: undefined,
           del_yn: 'N',
           reg_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
           reg_id: mem_id,
@@ -107,8 +103,6 @@ export class InquiryShoppingAppService {
     try {
       const { 
         inquiry_shopping_app_id,
-        inquiry_type,
-        title,
         content,
         mem_id,
         mod_id
@@ -123,14 +117,6 @@ export class InquiryShoppingAppService {
         mod_id: finalModId
       };
 
-      if (inquiry_type !== undefined) {
-        updateFields['inquiry_type'] = inquiry_type;
-      }
-      
-      if (title !== undefined) {
-        updateFields['title'] = title;
-      }
-      
       if (content !== undefined) {
         updateFields['content'] = content;
       }
