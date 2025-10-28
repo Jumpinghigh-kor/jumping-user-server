@@ -31,9 +31,9 @@ export class MemberShippingAddressController {
 
   @Post('updateMemberShippingAddress')
   async updateMemberShippingAddress(
-    @Body() updateMemberShippingAddressDto: UpdateMemberShippingAddressDto
+    @Body() payload: any
   ): Promise<{ success: boolean; message: string; code: string }> {
-    return this.memberShippingAddressService.updateMemberShippingAddress(updateMemberShippingAddressDto);
+    return this.memberShippingAddressService.updateMemberShippingAddress(payload as any);
   }
 
   @Post('deleteMemberShippingAddress')

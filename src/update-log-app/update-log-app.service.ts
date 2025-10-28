@@ -14,10 +14,12 @@ export class UpdateLogAppService {
     try {
       const updateLogAppInfo = await this.dataSource
         .createQueryBuilder()
-        .select('up_app_id', 'up_app_id')
-        .addSelect('up_app_version', 'up_app_version')
-        .addSelect('up_app_desc', 'up_app_desc')
-        .addSelect('reg_dt', 'reg_dt')
+        .select([
+          'up_app_id'
+          , 'up_app_version'
+          , 'up_app_desc'
+          , 'DATE_FORMAT(reg_dt, "%Y.%m.%d %H:%i") AS reg_dt'
+        ])
         .from('update_log_app', 'ula')
         .orderBy('up_app_id', 'DESC')
         .limit(1)

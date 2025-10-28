@@ -12,33 +12,42 @@ export class GetMemberShippingAddressListDto {
 }
 
 export class InsertMemberShippingAddressDto {
-  @IsNumber()
-  @Transform(({ value }) => value ? parseInt(value) : undefined)
+  @IsNotEmpty()
+  @Transform(({ value }) => Number(value))
   mem_id: number;
 
+  @IsNotEmpty()
   @IsString()
   shipping_address_name: string;
 
+  @IsNotEmpty()
   @IsString()
   receiver_name: string;
 
+  @IsNotEmpty()
   @IsString()
   receiver_phone: string;
 
   @IsString()
-  @IsIn(['Y', 'N'])
   default_yn: string;
 
   @IsOptional()
   @IsString()
   select_yn?: string;
 
+  @IsOptional()
+  @IsString()
+  del_yn?: string;
+
+  @IsNotEmpty()
   @IsString()
   address: string;
 
+  @IsNotEmpty()
   @IsString()
   address_detail: string;
 
+  @IsNotEmpty()
   @IsString()
   zip_code: string;
 
@@ -56,12 +65,11 @@ export class InsertMemberShippingAddressDto {
 }
 
 export class UpdateMemberShippingAddressDto {
-  @IsNumber()
-  @Transform(({ value }) => value ? parseInt(value) : undefined)
+  @IsNotEmpty()
+  @Transform(({ value }) => Number(value))
   shipping_address_id: number;
 
-  @IsNumber()
-  @Transform(({ value }) => value ? parseInt(value) : undefined)
+  @Transform(({ value }) => Number(value))
   mem_id: number;
 
   @IsString()
@@ -74,12 +82,16 @@ export class UpdateMemberShippingAddressDto {
   receiver_phone: string;
 
   @IsString()
-  @IsIn(['Y', 'N'])
-  default_yn: string;
+  @IsOptional()
+  default_yn?: string;
 
   @IsOptional()
   @IsString()
   select_yn?: string;
+
+  @IsOptional()
+  @IsString()
+  del_yn?: string;
 
   @IsString()
   address: string;
@@ -105,11 +117,11 @@ export class UpdateMemberShippingAddressDto {
 
 export class DeleteMemberShippingAddressDto {
   @IsNumber()
-  @Transform(({ value }) => value ? parseInt(value) : undefined)
+  @Transform(({ value }) => Number(value))
   shipping_address_id: number;
 
   @IsNumber()
-  @Transform(({ value }) => value ? parseInt(value) : undefined)
+  @Transform(({ value }) => Number(value))
   mem_id: number;
 }
 

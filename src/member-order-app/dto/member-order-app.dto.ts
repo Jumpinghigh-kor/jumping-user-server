@@ -42,16 +42,56 @@ export class InsertMemberOrderAppDto {
   @IsNumber()
   @IsNotEmpty()
   mem_id: number;
+
+  @IsString()
+  @IsNotEmpty()
+  order_dt: string;
+
+  @IsString()
+  @IsOptional()
+  order_memo?: string;
+  
+  @IsString()
+  @IsOptional()
+  order_memo_dt?: string;
+
+  @IsString()
+  @IsOptional()
+  memo_check_yn?: string;
+
+  @IsString()
+  @IsOptional()
+  memo_del_yn?: string;
+
+  @IsString()
+  @IsOptional()
+  del_yn: string;
+
+  @IsString()
+  @IsNotEmpty()
+  reg_dt: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  reg_id: number;
+
+  @IsString()
+  @IsOptional()
+  mod_dt?: string;
+
+  @IsNumber()
+  @IsOptional()
+  mod_id?: number;
 }
 
 export class InsertMemberOrderDetailAppDto {
   @IsNumber()
   @IsNotEmpty()
-  mem_id: number;
-
+  order_app_id: number;
+  
   @IsNumber()
   @IsNotEmpty()
-  order_app_id: number;
+  mem_id: number;
 
   @IsNumber()
   @IsNotEmpty()
@@ -66,8 +106,40 @@ export class InsertMemberOrderDetailAppDto {
   order_quantity: number;
 
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   order_group: number;
+
+  @IsString()
+  @IsOptional()
+  courier_code: string;
+  
+  @IsString()
+  @IsOptional()
+  tracking_number: string;
+
+  @IsString()
+  @IsOptional()
+  goodsflow_id: string;
+
+  @IsString()
+  @IsOptional()
+  purchase_confirm_dt?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  reg_dt: string;
+
+  @IsString()
+  @IsNotEmpty()
+  reg_id: number;
+
+  @IsString()
+  @IsOptional()
+  mod_dt?: string;
+
+  @IsNumber()
+  @IsOptional()
+  mod_id?: number;
 }
 
 export class UpdateOrderStatusDto {

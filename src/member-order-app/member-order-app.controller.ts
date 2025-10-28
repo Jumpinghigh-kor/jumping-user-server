@@ -25,10 +25,10 @@ export class MemberOrderAppController {
 
   @Post('insertMemberOrderApp')
   async insertMemberOrderApp(
-    @Body() insertMemberOrderAppDto: InsertMemberOrderAppDto
+    @Body() payload: any
   ): Promise<{ success: boolean; message: string; code: string }> {
     try {
-      return this.memberOrderAppService.insertMemberOrderApp(insertMemberOrderAppDto);
+      return this.memberOrderAppService.insertMemberOrderApp(payload as any);
     } catch (error) {
       throw error;
     }
@@ -36,10 +36,10 @@ export class MemberOrderAppController {
 
   @Post('insertMemberOrderDetailApp')
   async insertMemberOrderDetailApp(
-    @Body() insertMemberOrderDetailAppDto: InsertMemberOrderDetailAppDto
+    @Body() payload: any
   ): Promise<{ success: boolean; message: string; code: string; order_detail_app_id: number | null }> {
     try {
-      return this.memberOrderAppService.insertMemberOrderDetailApp(insertMemberOrderDetailAppDto);
+      return this.memberOrderAppService.insertMemberOrderDetailApp(payload as any);
     } catch (error) {
       throw error;
     }
@@ -47,22 +47,22 @@ export class MemberOrderAppController {
 
   @Post('updateMemberOrderDetailApp')
   async updateMemberOrderDetailApp(
-    @Body() updateMemberOrderDetailAppDto: UpdateMemberOrderDetailAppDto
+    @Body() payload: any
   ): Promise<{ success: boolean; message: string; code: string }> {
-    return this.memberOrderAppService.updateMemberOrderDetailApp(updateMemberOrderDetailAppDto);
+    return this.memberOrderAppService.updateMemberOrderDetailApp(payload as any);
   }
 
   @Post('updateOrderStatus')
   async updateOrderStatus(
-    @Body() updateOrderStatusDto: UpdateOrderStatusDto
+    @Body() payload: any
   ): Promise<{ success: boolean; message: string; code: string }> {
-    return this.memberOrderAppService.updateOrderStatus(updateOrderStatusDto);
+    return this.memberOrderAppService.updateOrderStatus(payload as any);
   }
 
   @Post('updateOrderQuantity')
   async updateOrderQuantity(
-    @Body() updateOrderQuantityDto: UpdateOrderQuantityDto
+    @Body() payload: any
   ): Promise<{ success: boolean; message: string; code: string }> {
-    return this.memberOrderAppService.updateOrderQuantity(updateOrderQuantityDto);
+    return this.memberOrderAppService.updateOrderQuantity(payload as any);
   }
 } 

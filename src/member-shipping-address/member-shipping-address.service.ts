@@ -194,7 +194,7 @@ export class MemberShippingAddressService {
         enter_way,
         enter_memo
       } = insertMemberShippingAddressDto;
-
+      
       // 현재 시간 (YYYYMMDDHHIISS 형식)
       const currentDate = getCurrentDateYYYYMMDDHHIISS();
       
@@ -215,7 +215,6 @@ export class MemberShippingAddressService {
           .execute();
       }
       
-      // TypeORM QueryBuilder 사용하여 데이터 삽입
       await this.dataSource
         .createQueryBuilder()
         .insert()
