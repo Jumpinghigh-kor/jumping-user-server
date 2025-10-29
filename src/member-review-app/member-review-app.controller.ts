@@ -25,12 +25,13 @@ export class MemberReviewAppController {
   @Post('insertMemberReviewApp')
   async insertMemberReviewApp(
     @Body() reviewData: {
-      mem_id: string;
-      product_app_id: string;
+      mem_id: number;
+      order_app_id: number;
+      product_app_id: number;
       title: string;
       content: string;
       star_point: number;
-      reg_id: string;
+      reg_id: number;
       images?: ReviewImageDto[];
     }
   ): Promise<{ success: boolean; data: any | null; code: string }> {
@@ -39,9 +40,9 @@ export class MemberReviewAppController {
 
   @Post('updateMemberReviewApp')
   async updateMemberReviewApp(
-    @Body() updateMemberReviewAppDto: UpdateMemberReviewAppDto
+    @Body() payload: any
   ): Promise<{ success: boolean; message: string; code: string }> {
-    return this.memberReviewAppService.updateMemberReviewApp(updateMemberReviewAppDto);
+    return this.memberReviewAppService.updateMemberReviewApp(payload as any);
   }
 
   @Post('deleteMemberReviewApp')

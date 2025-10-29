@@ -21,6 +21,7 @@ export class NoticesShoppingAppService {
         .createQueryBuilder()
         .select([
           'notices_type'
+          , 'title'
           , 'content'
           , 'notices_shopping_app_id'
           , 'DATE_FORMAT(reg_dt, "%Y.%m.%d") AS reg_dt'

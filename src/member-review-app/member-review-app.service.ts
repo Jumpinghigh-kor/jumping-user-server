@@ -26,6 +26,7 @@ export class MemberReviewAppService {
           , 'm.mem_app_status AS mem_app_status'
           , 'mra.review_app_id AS review_app_id'
           , 'mra.mem_id AS mem_id'
+          , 'mra.order_app_id AS order_app_id'
           , 'mra.product_app_id AS product_app_id'
           , 'mra.title AS title'
           , 'mra.content AS content'
@@ -125,7 +126,7 @@ export class MemberReviewAppService {
                 FROM        member_order_app smoa
                 INNER JOIN  member_order_detail_app smoda ON smoa.order_app_id = smoda.order_app_id
                 INNER JOIN  product_detail_app spda ON smoda.product_detail_app_id = spda.product_detail_app_id
-                WHERE       smoa.mem_id = mra.mem_id
+                WHERE       smoa.order_app_id = mra.order_app_id
                 AND       smoa.del_yn = 'N'
               ) AS option_unit
             `
@@ -136,7 +137,7 @@ export class MemberReviewAppService {
                 FROM        member_order_app smoa
                 INNER JOIN  member_order_detail_app smoda ON smoa.order_app_id = smoda.order_app_id
                 INNER JOIN  product_detail_app spda ON smoda.product_detail_app_id = spda.product_detail_app_id
-                WHERE       smoa.mem_id = mra.mem_id
+                WHERE       smoa.order_app_id = mra.order_app_id
                 AND         smoa.del_yn = 'N'
               ) AS option_amount
             `
@@ -147,7 +148,7 @@ export class MemberReviewAppService {
                 FROM        member_order_app smoa
                 INNER JOIN  member_order_detail_app smoda ON smoa.order_app_id = smoda.order_app_id
                 INNER JOIN  product_detail_app spda ON smoda.product_detail_app_id = spda.product_detail_app_id
-                WHERE       smoa.mem_id = mra.mem_id
+                WHERE       smoa.order_app_id = mra.order_app_id
                 AND         smoa.del_yn = 'N'
               ) AS order_quantity
             `
@@ -186,8 +187,9 @@ export class MemberReviewAppService {
   }
 
   async insertMemberReviewApp(reviewData: {
-    mem_id: string;
-    product_app_id: string;
+    mem_id: number;
+    order_app_id: number;
+    product_app_id: number;
     title: string;
     content: string;
     star_point: number;
@@ -207,6 +209,7 @@ export class MemberReviewAppService {
         .into('member_review_app')
         .values({
           mem_id: reviewData.mem_id,
+          order_app_id: reviewData.order_app_id,
           product_app_id: reviewData.product_app_id,
           title: reviewData.title,
           content: reviewData.content,

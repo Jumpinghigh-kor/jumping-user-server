@@ -22,11 +22,14 @@ export class ReviewImageDto {
 }
 
 export class InsertMemberReviewAppDto {
-  @IsString()
-  mem_id: string;
+  @IsNumber()
+  mem_id: number;
 
-  @IsString()
-  product_app_id: string;
+  @IsNumber()
+  order_app_id: number;
+
+  @IsNumber()
+  product_app_id: number;
 
   @IsString()
   title: string;
@@ -40,7 +43,7 @@ export class InsertMemberReviewAppDto {
   @Transform(({ value }) => typeof value === 'string' ? parseInt(value) : value)
   star_point: number;
 
-  @IsString()
+  @IsNumber()
   reg_id: number;
 
   @IsOptional()
@@ -53,7 +56,6 @@ export class InsertMemberReviewAppDto {
 
 export class UpdateMemberReviewAppDto {
   @IsNumber()
-  @Transform(({ value }) => typeof value === 'string' ? parseInt(value) : value)
   review_app_id: number;
 
   @IsString()
@@ -65,27 +67,22 @@ export class UpdateMemberReviewAppDto {
   @IsNumber()
   @Min(1)
   @Max(5)
-  @Transform(({ value }) => typeof value === 'string' ? parseInt(value) : value)
   star_point: number;
 
   @IsNumber()
-  @Transform(({ value }) => typeof value === 'string' ? parseInt(value) : value)
   mem_id: number;
 }
 
 export class DeleteMemberReviewAppDto {
   @IsNumber()
-  @Transform(({ value }) => typeof value === 'string' ? parseInt(value) : value)
   review_app_id: number;
 
   @IsNumber()
-  @Transform(({ value }) => typeof value === 'string' ? parseInt(value) : value)
   mem_id: number;
 }
 
 export class GetMemberReviewAppImgDto {
   @IsOptional()
   @IsNumber()
-  @Transform(({ value }) => value ? parseInt(value) : undefined)
   review_app_id?: number;
 }

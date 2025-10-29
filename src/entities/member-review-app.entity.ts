@@ -6,6 +6,9 @@ export class MemberReviewApp {
   review_app_id: number;
   
   @Column()
+  order_app_id: number;
+  
+  @Column()
   product_app_id: number;
 
   @Column()

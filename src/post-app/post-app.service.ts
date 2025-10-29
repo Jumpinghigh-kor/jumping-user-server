@@ -34,7 +34,10 @@ export class PostAppService {
         .leftJoin('member_post_app', 'mpa', 'pa.post_app_id = mpa.post_app_id')
         .leftJoin('members', 'm', 'mpa.mem_id = m.mem_id')
         .where('pa.del_yn = :paDel', { paDel: 'N' })
-        .andWhere('m.app_active_dt < mpa.reg_dt')
+        .andWhere(new Brackets(qb => {
+          qb.where('mpa.reg_dt IS NULL')
+            .orWhere('m.app_active_dt < mpa.reg_dt');
+        }))
         .andWhere(new Brackets(qb => {
           qb.where('pa.all_send_yn = :allY', { allY: 'Y' })
             .andWhere('mpa.del_yn = :mpaDel', { mpaDel: 'N' })
