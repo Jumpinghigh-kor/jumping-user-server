@@ -65,7 +65,6 @@ export class MemberController {
     return this.memberService.updateRecentDt(body.mem_id);
   }
 
-
   @Public()
   @Post('findId')
   async findId(
@@ -80,5 +79,13 @@ export class MemberController {
     @Body() body: { mem_id: number, mem_email_id: string, mem_name: string, mem_phone: string }
   ): Promise<{ success: boolean; message: string; code: string; data?: { mem_id: number, temporary_password?: string } }> {
     return this.memberService.findPassword(body);
+  }
+
+  @Public()
+  @Post('updateChangeNickname')
+  async updateChangeNickname(
+    @Body() body: { mem_id: number, mem_nickname: string }
+  ): Promise<{ success: boolean; message: string; code: string }> {
+    return this.memberService.updateChangeNickname(body.mem_id, body.mem_nickname);
   }
 } 

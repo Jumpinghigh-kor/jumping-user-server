@@ -326,8 +326,24 @@ export class MemberService {
         };
       }
 
-      // Generate temporary random password (8 characters)
-      const tempPassword = Math.random().toString(36).slice(-8);
+      // Generate temporary random password (8 characters: 1 upper, 5 lower, 1 special, 1 digit)
+      const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+      const digits = '0123456789';
+      const specials = '!@#$%^&*';
+      const pick = (chars: string) => chars[Math.floor(Math.random() * chars.length)];
+      const chars = [
+        pick(uppercase),
+        ...Array.from({ length: 5 }, () => pick(lowercase)),
+        pick(specials),
+        pick(digits),
+      ];
+      // shuffle to avoid fixed positions
+      for (let i = chars.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [chars[i], chars[j]] = [chars[j], chars[i]];
+      }
+      const tempPassword = chars.join('');
       
       // Hash the temporary password
       const salt = await bcrypt.genSalt();
@@ -560,6 +576,47 @@ export class MemberService {
       };
     } catch (error) {
       console.error('Error updating recent date:', error);
+      throw new HttpException(
+        {
+          success: false,
+          message: error.message,
+          code: COMMON_RESPONSE_CODES.FAIL
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async updateChangeNickname(mem_id: number, mem_nickname: string): Promise<{ success: boolean; message: string; code: string }> {
+    try {
+
+      const result = await this.memberRepository
+        .createQueryBuilder()
+        .update('members')
+        .set({
+          mem_nickname: mem_nickname,
+          recent_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
+          app_mod_dt: () => "DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')",
+          app_mod_id: mem_id
+        })
+        .where("mem_id = :mem_id", { mem_id })
+        .execute();
+
+      if (result.affected === 0) {
+        return {
+          success: false,
+          message: '업데이트할 회원을 찾을 수 없습니다.',
+          code: COMMON_RESPONSE_CODES.NO_DATA
+        };
+      }
+
+      return {
+        success: true,
+        message: '닉네임이 성공적으로 업데이트되었습니다.',
+        code: COMMON_RESPONSE_CODES.SUCCESS
+      };
+    } catch (error) {
+      console.error('Error updating nickname:', error);
       throw new HttpException(
         {
           success: false,

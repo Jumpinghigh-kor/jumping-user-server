@@ -346,6 +346,7 @@ export class MemberScheduleAppService {
         .update('member_schedule_app')
         .set({
           reservation_sch_id: reservation_sch_id,
+          agree_yn: null,
           mod_dt: currentDate,
           mod_id: mem_id
         })
