@@ -5,7 +5,7 @@ import { DataSource } from 'typeorm';
 import { COMMON_RESPONSE_CODES } from '../core/constants/response-codes';
 import { MemberReturnApp } from '../entities/member-return-app.entity';
 import { getCurrentDateYYYYMMDDHHIISS } from '../core/utils/date.utils';
-import { InsertMemberReturnAppDto, UpdateMemberReturnAppOrderAddressIdDto, UpdateMemberReturnAppCancelYnDto, GetMemberReturnAppDetailDto } from './dto/member-return-app.dto';
+import { InsertMemberReturnAppDto, UpdateMemberReturnAppOrderAddressIdDto, UpdateMemberReturnAppCancelYnDto, GetMemberReturnAppDetailDto, UpdateMemberReturnAppApprovalYnDto } from './dto/member-return-app.dto';
 
 @Injectable()
 export class MemberReturnAppService {
@@ -308,7 +308,7 @@ export class MemberReturnAppService {
               SELECT
                 IFNULL(SUM(smpa.point_amount), 0)
               FROM  member_point_app smpa
-              WHERE smpa.order_app_id = moa.order_app_id
+              WHERE smpa.order_detail_app_id = moda.order_detail_app_id
               AND   smpa.del_yn = 'N'
               AND   smpa.point_status = 'POINT_MINUS'
             ) AS point_use_amount
@@ -520,4 +520,38 @@ export class MemberReturnAppService {
       );
     }
   }
-}
+
+  async updateMemberReturnAppApprovalYn(updateMemberReturnAppApprovalYnDto: UpdateMemberReturnAppApprovalYnDto): Promise<{ success: boolean; data: any | null; code: string }> {
+    try {
+      const { mem_id, order_detail_app_ids, approval_yn } = updateMemberReturnAppApprovalYnDto;
+      console.log(order_detail_app_ids);
+      console.log(approval_yn);
+      const result = await this.dataSource
+        .createQueryBuilder()
+        .update('member_return_app')
+        .set({
+          approval_yn: approval_yn,
+          mod_dt: getCurrentDateYYYYMMDDHHIISS(),
+          mod_id: mem_id
+        })
+        .where('order_detail_app_id IN (:...order_detail_app_ids)', { order_detail_app_ids: order_detail_app_ids })
+        .execute();
+
+      return {
+        success: true,
+        data: result,
+        code: COMMON_RESPONSE_CODES.SUCCESS
+      };
+    } catch (error) {
+        console.error('Error updating member return app approval yn:', error);
+        throw new HttpException(
+          {
+            success: false,
+            message: error.message,
+            code: COMMON_RESPONSE_CODES.FAIL
+          },
+          HttpStatus.INTERNAL_SERVER_ERROR
+        );
+      }
+    }
+  }

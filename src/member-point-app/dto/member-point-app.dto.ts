@@ -11,7 +11,7 @@ export class MemberPointAppDto {
 
   @IsNumber()
   @IsNotEmpty()
-  order_app_id: number;
+  order_detail_app_id: number;
 
   @IsString()
   @IsNotEmpty()
@@ -84,7 +84,7 @@ export class GetMemberPointAppListDto {
 export class InsertMemberPointAppDto {
   @IsNumber()
   @IsNotEmpty()
-  order_app_id: number;
+  order_detail_app_id: number;
 
   @IsNumber()
   @IsNotEmpty()

@@ -49,6 +49,7 @@ export class MemberOrderAppService {
           , 'pda.option_amount AS option_amount'
           , 'pda.option_type AS option_type'
           , 'pda.option_unit AS option_unit'
+          , 'pda.option_gender AS option_gender'
           , `
               (
                 SELECT
@@ -120,6 +121,7 @@ export class MemberOrderAppService {
                   SUM(smpa.payment_amount)
                 FROM  member_payment_app smpa
                 WHERE smpa.order_app_id = moa.order_app_id
+                AND   smpa.payment_status = 'PAYMENT_COMPLETE'
               ) AS total_payment_amount
             `
             , `
@@ -133,6 +135,16 @@ export class MemberOrderAppService {
             , `
               (
                 SELECT
+                  smpa.payment_app_id
+                FROM  member_payment_app smpa
+                WHERE smpa.order_app_id = moa.order_app_id
+                AND   smpa.payment_status = 'PAYMENT_COMPLETE'
+                AND   smpa.payment_type = 'DELIVERY_FEE'
+              ) AS delivery_fee_payment_app_id
+            `
+            , `
+              (
+                SELECT
                   SUM(smpa.payment_amount)
                 FROM  member_payment_app smpa
                 WHERE smpa.order_app_id = moa.order_app_id
@@ -140,6 +152,26 @@ export class MemberOrderAppService {
                 AND   smpa.payment_type = 'DELIVERY_FEE'
               ) AS total_delivery_fee_amount
             `
+            , `
+            (
+              SELECT
+                smpa.portone_imp_uid
+              FROM  member_payment_app smpa
+              WHERE smpa.order_app_id = moa.order_app_id
+              AND   smpa.payment_status = 'PAYMENT_COMPLETE'
+              AND   smpa.payment_type = 'DELIVERY_FEE'
+            ) AS delivery_fee_portone_imp_uid
+          `
+          , `
+            (
+              SELECT
+                smpa.portone_merchant_uid
+              FROM  member_payment_app smpa
+              WHERE smpa.order_app_id = moa.order_app_id
+              AND   smpa.payment_status = 'PAYMENT_COMPLETE'
+              AND   smpa.payment_type = 'DELIVERY_FEE'
+            ) AS delivery_fee_portone_merchant_uid
+          `
         ])
         .from('members', 'm')
         .innerJoin('member_order_app', 'moa', 'm.mem_id = moa.mem_id')

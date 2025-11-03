@@ -39,6 +39,7 @@ export class ProductAppService {
           , 'today_send_yn'
           , 'CONCAT(SUBSTRING(today_send_time, 1, 2), ":", SUBSTRING(today_send_time, 3, 2)) AS today_send_time'
           , 'not_today_send_day'
+          , 'consignment_yn AS consignment_yn'
           , 'view_yn'
           , 'del_yn'
           , 'reg_dt'

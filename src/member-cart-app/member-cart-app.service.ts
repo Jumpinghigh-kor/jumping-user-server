@@ -32,6 +32,7 @@ export class MemberCartAppService {
           , 'pa.original_price AS original_price'
           , 'pa.price AS price'
           , 'pa.discount AS discount'
+          , 'pa.consignment_yn AS consignment_yn'
           , 'pda.quantity AS product_quantity'
           , 'pda.option_type AS option_type'
           , 'pda.option_amount AS option_amount'

@@ -29,8 +29,8 @@ export class MemberPointAppService {
         ])
         .from('members', 'm')
         .innerJoin('member_point_app', 'mpa', 'm.mem_id = mpa.mem_id')
-        .innerJoin('member_order_app', 'moa', 'mpa.order_app_id = moa.order_app_id')
-        .innerJoin('member_order_detail_app', 'moda', 'moa.order_app_id = moda.order_app_id')
+        .innerJoin('member_order_detail_app', 'moda', 'mpa.order_detail_app_id = moda.order_detail_app_id')
+        .innerJoin('member_order_app', 'moa', 'moda.order_app_id = moa.order_app_id')
         .leftJoin('product_detail_app', 'pda', 'moda.product_detail_app_id = pda.product_detail_app_id')
         .leftJoin('product_app', 'pa', 'pda.product_app_id = pa.product_app_id')
         .where('m.mem_id = :memId')
@@ -68,7 +68,7 @@ export class MemberPointAppService {
 
   async insertMemberPointApp(insertMemberPointAppDto: InsertMemberPointAppDto): Promise<{ success: boolean; data: { point_app_id: number } | null; code: string }> {
     try {
-      const { order_app_id, mem_id, point_status, point_amount } = insertMemberPointAppDto;
+      const { order_detail_app_id, mem_id, point_status, point_amount } = insertMemberPointAppDto;
       const reg_dt = getCurrentDateYYYYMMDDHHIISS();
       
       const result = await this.dataSource
@@ -77,7 +77,7 @@ export class MemberPointAppService {
         .into('member_point_app')
         .values({
           mem_id
-          , order_app_id: order_app_id
+          , order_detail_app_id: order_detail_app_id
           , point_status: point_status
           , point_amount: point_amount
           , del_yn: 'N'

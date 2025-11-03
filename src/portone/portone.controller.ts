@@ -10,9 +10,9 @@ export class PortoneController {
     return this.portoneService.verifyPayment(body.imp_uid);
   }
 
-  @Post('cancel')
-  async cancelPayment(@Body() body: { imp_uid: string; reason: string }) {
-    return this.portoneService.cancelPayment(body.imp_uid, body.reason);
+  @Post('refund')
+  async cancelPayment(@Body() body: any) {
+    return this.portoneService.requestRefund(body);
   }
 
   @Post('webhook')

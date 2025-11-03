@@ -1,6 +1,6 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { MemberReturnAppService } from './member-return-app.service';
-import { GetMemberReturnAppDto, InsertMemberReturnAppDto, UpdateMemberReturnAppDto, UpdateMemberReturnAppOrderAddressIdDto, UpdateMemberReturnAppCancelYnDto, GetMemberReturnAppDetailDto } from './dto/member-return-app.dto';
+import { GetMemberReturnAppDto, InsertMemberReturnAppDto, UpdateMemberReturnAppDto, UpdateMemberReturnAppOrderAddressIdDto, UpdateMemberReturnAppCancelYnDto, GetMemberReturnAppDetailDto, UpdateMemberReturnAppApprovalYnDto } from './dto/member-return-app.dto';
 
 @Controller('member-return-app')
 export class MemberReturnAppController {
@@ -51,5 +51,20 @@ export class MemberReturnAppController {
     @Body() updateMemberReturnAppCancelYnDto: UpdateMemberReturnAppCancelYnDto
   ): Promise<{ success: boolean; data: any | null; code: string }> {
     return this.memberReturnAppService.updateMemberReturnAppCancelYn(updateMemberReturnAppCancelYnDto);
+  }
+
+  @Post('/updateMemberReturnAppApprovalYn')
+  async updateMemberReturnAppApprovalYn(
+    @Body() payload: {
+      mem_id: string;
+      order_detail_app_ids: number[];
+      approval_yn: string;
+    }
+  ): Promise<{ success: boolean; data: any | null; code: string }> {
+    return this.memberReturnAppService.updateMemberReturnAppApprovalYn({
+      mem_id: payload.mem_id,
+      order_detail_app_ids: payload.order_detail_app_ids,
+      approval_yn: payload.approval_yn
+    });
   }
 } 

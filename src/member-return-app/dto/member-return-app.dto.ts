@@ -195,3 +195,17 @@ export class UpdateMemberReturnAppCancelYnDto {
   @IsNotEmpty()
   cancel_yn: string;
 }
+
+export class UpdateMemberReturnAppApprovalYnDto {
+  @IsString()
+  @IsNotEmpty()
+  mem_id: string;
+
+  @IsArray()
+  @IsNotEmpty()
+  order_detail_app_ids: number[];
+
+  @IsString()
+  @IsNotEmpty()
+  approval_yn: string;
+}

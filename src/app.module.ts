@@ -53,6 +53,8 @@ import { PostAppModule } from './post-app/post-app.module';
 import { MemberOrderAddressModule } from './member-order-address/member-order-address.module';
 import { MemberPaymentApp } from './entities/member-payment-app.entity';
 import { MemberPaymentAppModule } from './member-payment-app/member-payment-app.module';
+import { PortoneModule } from './portone/portone.module';
+import { DeliveryTrackerModule } from './delivery-tracker/delivery-tracker.module';
 
 @Module({
   imports: [
@@ -105,7 +107,9 @@ import { MemberPaymentAppModule } from './member-payment-app/member-payment-app.
     ReturnExchangePolicyModule,
     PostAppModule,
     MemberOrderAddressModule,
-    MemberPaymentAppModule
+    MemberPaymentAppModule,
+    PortoneModule,
+    DeliveryTrackerModule
   ],
   controllers: [AppController],
   providers: [

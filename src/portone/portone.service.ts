@@ -1,12 +1,16 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
+import { DataSource } from 'typeorm';
+
+declare const db: any;
+declare const dayjs: any;
 
 @Injectable()
 export class PortoneService {
   private readonly IMP_URL = 'https://api.iamport.kr';
   
-  constructor(private readonly httpService: HttpService) {}
+  constructor(private readonly httpService: HttpService, private dataSource: DataSource) {}
 
   // 포트원 액세스 토큰 발급
   private async getAccessToken(): Promise<string> {
@@ -17,7 +21,6 @@ export class PortoneService {
           imp_secret: process.env.PORTONE_SECRET_KEY,
         })
       );
-      
       return response.data.response.access_token;
     } catch (error) {
       throw new HttpException('포트원 인증 실패', HttpStatus.UNAUTHORIZED);
@@ -36,48 +39,105 @@ export class PortoneService {
           },
         })
       );
-      
+      const pr = response?.data?.response || {};
       return {
         success: true,
         data: response.data.response,
       };
     } catch (error) {
-      console.error('결제 검증 실패:', error);
+      console.error(`[PortOne][${new Date().toISOString()}] verifyPayment: failed`, error?.response?.data || error?.message || error);
       throw new HttpException('결제 검증 실패', HttpStatus.BAD_REQUEST);
     }
   }
 
-  // 결제 취소
-  async cancelPayment(imp_uid: string, reason: string, amount?: number) {
+  // 내부 전용: 포트원 환불 API 호출
+  private async requestPortOneRefundCore(
+    imp_uid: string | undefined,
+    merchant_uid: string | undefined,
+    refundAmount: number,
+    reason: string
+  ): Promise<any> {
     try {
-      const accessToken = await this.getAccessToken();
-      
-      const cancelData: any = {
-        imp_uid,
-        reason,
-      };
-      
-      if (amount) {
-        cancelData.amount = amount;
+      if (!imp_uid && !merchant_uid) {
+        throw new HttpException('imp_uid 또는 merchant_uid가 필요합니다.', HttpStatus.BAD_REQUEST);
       }
-      
+
+      const accessToken = await this.getAccessToken();
+      const cancelData: any = { reason };
+      if (imp_uid) cancelData.imp_uid = imp_uid;
+      if (!imp_uid && merchant_uid) cancelData.merchant_uid = merchant_uid;
+      if (refundAmount && refundAmount > 0) cancelData.amount = refundAmount;
+
       const response: any = await firstValueFrom(
         this.httpService.post(`${this.IMP_URL}/payments/cancel`, cancelData, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+          headers: { Authorization: `Bearer ${accessToken}` },
         })
       );
       
-      return {
-        success: true,
-        data: response.data.response,
-      };
+      return { success: true, data: response?.data?.response };
     } catch (error) {
-      console.error('결제 취소 실패:', error);
       throw new HttpException('결제 취소 실패', HttpStatus.BAD_REQUEST);
     }
   }
+
+  async requestRefund(body: RefundRequestBody): Promise<any> {
+    try {
+      let { imp_uid, merchant_uid, refundAmount, reason, payment_app_id, userId } = body || {} as any;
+      
+      let paymentRow: any = null;
+      if ((!imp_uid && !merchant_uid) || typeof refundAmount !== 'number') {
+        if (payment_app_id) {
+          try {
+            const sql = `
+              SELECT
+                payment_app_id
+                , payment_type
+                , payment_amount
+                , portone_imp_uid
+                , portone_merchant_uid
+              FROM  member_payment_app
+              WHERE payment_app_id = ?
+              LIMIT 1`;
+            const rows: any[] = await this.dataSource.query(sql, [payment_app_id]);
+            paymentRow = rows && rows[0] ? rows[0] : null;
+            if (paymentRow) {
+              if (!imp_uid && paymentRow.portone_imp_uid) imp_uid = paymentRow.portone_imp_uid;
+              if (!merchant_uid && paymentRow.portone_merchant_uid) merchant_uid = paymentRow.portone_merchant_uid;
+              if (typeof refundAmount !== 'number') refundAmount = Number(paymentRow.payment_amount || 0);
+            }
+          } catch (lookupErr) {
+            console.error('[PortOne] payment_app lookup error:', lookupErr);
+          }
+        }
+      }
+
+      const result = await this.requestPortOneRefundCore(imp_uid, merchant_uid, Number(refundAmount || 0), String(reason ?? ''));
+      try {
+        if (payment_app_id) {
+          const updateQuery = `
+            UPDATE member_payment_app SET
+              payment_status = 'PAYMENT_REFUND'
+              , refund_amount = COALESCE(refund_amount, 0) + ?
+              , mod_dt = DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+              , mod_id = ?
+            WHERE payment_app_id = ?
+          `;
+          try {
+            await this.dataSource.query(updateQuery, [Number(refundAmount || 0), userId || null, Number(payment_app_id)]);
+          } catch (err) {
+            console.error('[PortOne] Update member_payment_app error:', err);
+          }
+        }
+      } catch (e) {
+        console.error('[PortOne] Post-refund update error:', e);
+      }
+      return result;
+    } catch (e: any) {
+      const message = e?.response?.data || { message: e?.message || 'refund error' };
+      throw new HttpException(message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
 
   // 웹훅 처리
   async handleWebhook(webhookData: any) {
@@ -103,3 +163,15 @@ export class PortoneService {
     }
   }
 } 
+// Nest 서비스 메서드: 환불 요청 (컨트롤러에서 위임 호출)
+export interface RefundRequestBody {
+  imp_uid?: string;
+  merchant_uid?: string;
+  refundAmount?: number;
+  reason?: string;
+  payment_app_id?: number;
+  order_app_id?: number;
+  userId?: number;
+}
+
+ 
