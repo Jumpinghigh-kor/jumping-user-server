@@ -17,9 +17,9 @@ export class MemberExerciseAppController {
 
   @Post('updateMemberExerciseApp')
   async updateMemberExerciseApp(
-    @Body() updateMemberExerciseAppDto: UpdateMemberExerciseAppDto
+    @Body() payload: any
   ): Promise<{ success: boolean; message: string; code: string }> {
-    return this.memberExerciseAppService.updateMemberExerciseApp(updateMemberExerciseAppDto);
+    return this.memberExerciseAppService.updateMemberExerciseApp(payload as any);
   }
 
   @Post('getMemberExerciseAppInfo')

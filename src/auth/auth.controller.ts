@@ -12,7 +12,7 @@ export class AuthController {
   async login(@Body() authDto: AuthDto) {
     try {
       const user = await this.authService.validateUser(
-        authDto.mem_email_id,
+        authDto.mem_app_id,
         authDto.mem_app_password
       );
       return this.authService.login(user);

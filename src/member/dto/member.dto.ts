@@ -32,7 +32,7 @@ export class FindPasswordDto {
 
   @IsNotEmpty()
   @IsString()
-  mem_email_id: string;
+  mem_app_id: string;
 }
 
 export class UpdatePushTokenDto {
@@ -64,7 +64,7 @@ export interface MemberInfoResponse {
   mem_checkin_number: string;
   mem_manager: string;
   mem_sch_id: number;
-  mem_email_id: string;
+  mem_app_id: string;
   mem_app_status: number;
   center_id: number;
   total_point: number;

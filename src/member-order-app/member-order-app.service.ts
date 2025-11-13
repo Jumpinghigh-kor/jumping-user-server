@@ -75,6 +75,7 @@ export class MemberOrderAppService {
             , 'mra.return_app_id AS return_app_id'
             , 'mra.return_reason_type AS return_reason_type'
             , 'mra.reason AS reason'
+            , 'mra.return_goodsflow_id AS return_goodsflow_id'
             , `
                 (
                   SELECT

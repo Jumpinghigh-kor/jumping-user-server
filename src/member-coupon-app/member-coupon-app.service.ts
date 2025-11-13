@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
+import { Repository, DataSource, Brackets } from 'typeorm';
 import { MemberCouponApp } from './dto/member-coupon-app.dto';
 import { GetMemberCouponAppListDto, MemberCouponAppListResponse, UpdateMemberCouponAppDto } from './dto/member-coupon-app.dto';
 import { COMMON_RESPONSE_CODES } from '../core/constants/response-codes';
@@ -139,8 +139,10 @@ export class MemberCouponAppService {
         .from('coupon_app', 'ca')
         .where('ca.del_yn = :del_yn', { del_yn: 'N' })
         .andWhere('(ca.start_dt <= DATE_FORMAT(NOW(), \'%Y%m%d%H%i%s\') AND DATE_FORMAT(NOW(), \'%Y%m%d%H%i%s\') <= ca.end_dt)')
-        .andWhere('ca.product_app_id = :product_app_id', { product_app_id })
-        .orWhere('ca.product_app_id IS NULL')
+        .andWhere(new Brackets(qb => {
+          qb.where('ca.product_app_id = :product_app_id', { product_app_id })
+            .orWhere('ca.product_app_id IS NULL');
+        }))
         .orderBy('coupon_app_id', 'DESC')
         .getRawMany();
 

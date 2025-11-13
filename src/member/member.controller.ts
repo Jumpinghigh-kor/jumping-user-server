@@ -76,7 +76,7 @@ export class MemberController {
   @Public()
   @Post('findPassword')
   async findPassword(
-    @Body() body: { mem_id: number, mem_email_id: string, mem_name: string, mem_phone: string }
+    @Body() body: { mem_id: number, mem_app_id: string, mem_name: string, mem_phone: string }
   ): Promise<{ success: boolean; message: string; code: string; data?: { mem_id: number, temporary_password?: string } }> {
     return this.memberService.findPassword(body);
   }

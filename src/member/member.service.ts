@@ -30,7 +30,7 @@ export class MemberService {
           , 'mem_checkin_number'
           , 'mem_manager'
           , 'mem_sch_id'
-          , 'mem_email_id'
+          , 'mem_app_id'
           , 'mem_role'
           , 'mem_app_password'
           , 'mem_app_status'
@@ -273,7 +273,7 @@ export class MemberService {
     try {
       const existingMember = await this.memberRepository
         .createQueryBuilder()
-        .select(['mem_email_id', 'DATE_FORMAT(app_reg_dt, "%Y.%m.%d") AS app_reg_dt'])
+        .select(['mem_app_id', 'DATE_FORMAT(app_reg_dt, "%Y.%m.%d") AS app_reg_dt'])
         .where('mem_name = :mem_name', { mem_name })
         .andWhere('mem_phone = :mem_phone', { mem_phone })
         .getRawOne();
@@ -308,14 +308,14 @@ export class MemberService {
 
   async findPassword(findPasswordDto: FindPasswordDto): Promise<{ success: boolean; message: string; code: string; data?: { mem_id: number, temporary_password?: string } }> {
     try {
-      const {  mem_email_id, mem_name, mem_phone } = findPasswordDto;
+      const {  mem_app_id, mem_name, mem_phone } = findPasswordDto;
       
       const member = await this.memberRepository
         .createQueryBuilder()
         .select('mem_id')
         .where('mem_name = :mem_name', { mem_name })
         .andWhere('mem_phone = :mem_phone', { mem_phone })
-        .andWhere('mem_email_id = :mem_email_id', { mem_email_id })
+        .andWhere('mem_app_id = :mem_app_id', { mem_app_id })
         .getRawOne();
 
       if (!member) {

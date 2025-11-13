@@ -23,21 +23,21 @@ export class AuthService {
         .createQueryBuilder('m')
         .select([
           'm.mem_id',
-          'm.mem_email_id',
+          'm.mem_app_id',
           'm.mem_name',
           'm.mem_app_password',
           'm.center_id',
           'm.mem_app_status'
         ])
-        .where('m.mem_email_id = :email', { email })
+        .where('m.mem_app_id = :email', { email })
         .getOne();
-        
+        console.log(member);
       if (!member) {
         throw new HttpException({
           success: false,
           message: '존재하지 않는 이메일입니다.',
           code: 'EMAIL_NOT_FOUND',
-          field: 'mem_email_id'
+          field: 'mem_app_id'
         }, HttpStatus.BAD_REQUEST);
       }
 
@@ -91,7 +91,7 @@ export class AuthService {
     try {
       const payload = { 
         mem_id: user.mem_id,
-        mem_email_id: user.mem_email_id,
+        mem_app_id: user.mem_app_id,
         mem_name: user.mem_name,
         center_id: user.center_id,
         mem_app_status: user.mem_app_status
@@ -197,7 +197,7 @@ export class AuthService {
 
       const payload = {
         mem_id: member.mem_id,
-        mem_email_id: member.mem_email_id,
+        mem_app_id: member.mem_app_id,
         mem_name: member.mem_name,
         center_id: member.center_id,
         mem_app_status: member.mem_app_status

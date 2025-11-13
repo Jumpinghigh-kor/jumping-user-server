@@ -21,7 +21,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     return {
       mem_id: payload.mem_id,
-      mem_email_id: payload.mem_email_id,
+      mem_app_id: payload.mem_app_id,
       mem_name: payload.mem_name,
       center_id: payload.center_id,
       mem_app_status: payload.mem_app_status
