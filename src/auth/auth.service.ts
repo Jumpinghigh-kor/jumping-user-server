@@ -31,7 +31,7 @@ export class AuthService {
         ])
         .where('m.mem_app_id = :email', { email })
         .getOne();
-        console.log(member);
+        
       if (!member) {
         throw new HttpException({
           success: false,

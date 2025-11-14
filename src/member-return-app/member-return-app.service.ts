@@ -524,8 +524,7 @@ export class MemberReturnAppService {
   async updateMemberReturnAppApprovalYn(updateMemberReturnAppApprovalYnDto: UpdateMemberReturnAppApprovalYnDto): Promise<{ success: boolean; data: any | null; code: string }> {
     try {
       const { mem_id, order_detail_app_ids, approval_yn } = updateMemberReturnAppApprovalYnDto;
-      console.log(order_detail_app_ids);
-      console.log(approval_yn);
+      
       const result = await this.dataSource
         .createQueryBuilder()
         .update('member_return_app')
