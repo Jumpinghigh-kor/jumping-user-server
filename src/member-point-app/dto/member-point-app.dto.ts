@@ -15,6 +15,10 @@ export class MemberPointAppDto {
 
   @IsString()
   @IsNotEmpty()
+  point_type: string;
+
+  @IsString()
+  @IsNotEmpty()
   point_status: string;
 
   @IsNumber()

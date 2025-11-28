@@ -28,31 +28,53 @@ export class PostAppService {
           , 'pa.content AS content'
           , 'DATE_FORMAT(pa.reg_dt, "%Y.%m.%d %H:%i") AS reg_dt'
           , 'mpa.member_post_app_id AS member_post_app_id'
-          , 'mpa.read_yn AS read_yn'
           , 'mpa.read_dt AS read_dt'
         ])
-        .leftJoin('member_post_app', 'mpa', 'pa.post_app_id = mpa.post_app_id')
-        .leftJoin('members', 'm', 'mpa.mem_id = m.mem_id')
-        .where('pa.del_yn = :paDel', { paDel: 'N' })
-        .andWhere(new Brackets(qb => {
-          qb.where('mpa.reg_dt IS NULL')
-            .orWhere('m.app_active_dt < mpa.reg_dt');
-        }))
-        .andWhere(new Brackets(qb => {
-          qb.where('pa.all_send_yn = :allY', { allY: 'Y' })
-            .andWhere('mpa.del_yn = :mpaDel', { mpaDel: 'N' })
-            .orWhere('mpa.del_yn IS NULL')
-            .orWhere(new Brackets(qb2 => {
-              qb2.where('pa.all_send_yn = :allN', { allN: 'N' })
-                 .andWhere('mpa.mem_id = :mem_id', { mem_id })
-                 .andWhere('mpa.del_yn = :mpaDel', { mpaDel: 'N' });
-            }));
-        }))
-        .andWhere(new Brackets(qb => {
-          qb.where("pa.post_type = 'ALL'")
-            .orWhere('pa.post_type = :post_type', { post_type });
-        }))
-        .orderBy('pa.post_app_id', 'DESC');
+        .addSelect(
+          `CASE
+            WHEN  (mpa.member_post_app_id IS NULL OR mpa.read_yn = 'N') THEN 'N'
+            ELSE  'Y'
+          END AS read_yn`
+        )
+        .innerJoin('members', 'm', 'm.mem_id = :memId', { memId: mem_id })
+        .leftJoin(
+          'member_post_app',
+          'mpa',
+          'pa.post_app_id = mpa.post_app_id AND mpa.mem_id = m.mem_id',
+        )
+        .where('m.app_reg_dt <= pa.reg_dt')
+        .andWhere(
+          new Brackets((qb) => {
+            qb.where(
+              new Brackets((qb2) => {
+                qb2
+                  .where('pa.all_send_yn = :allSend', { allSend: 'Y' })
+                  .andWhere(
+                    new Brackets((qb3) => {
+                      qb3
+                        .where('mpa.member_post_app_id IS NULL')
+                        .orWhere('mpa.del_yn = :mpaDelYn', { mpaDelYn: 'N' });
+                    }),
+                  );
+              }),
+            )
+              .orWhere(
+                new Brackets((qb2) => {
+                  qb2
+                    .where('pa.all_send_yn = :eachSend', { eachSend: 'N' })
+                    .andWhere('mpa.member_post_app_id IS NOT NULL')
+                    .andWhere('mpa.del_yn = :mpaDelYn', { mpaDelYn: 'N' });
+                }),
+              );
+          }),
+        )
+        .andWhere(
+          new Brackets((qb) => {
+            qb.where('pa.post_type = :allType', { allType: 'ALL' })
+              .orWhere('pa.post_type = :postType', { postType: post_type });
+          }),
+        )
+        .orderBy('pa.reg_dt', 'DESC');
 
       const postAppList = await queryBuilder.getRawMany();
 

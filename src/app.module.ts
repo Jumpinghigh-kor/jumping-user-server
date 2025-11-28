@@ -43,7 +43,6 @@ import { NoticesShoppingAppModule } from './notices-shopping-app/notices-shoppin
 import { InquiryShoppingAppModule } from './inquiry-shopping-app/inquiry-shopping-app.module';
 import { MemberReturnAppModule } from './member-return-app/member-return-app.module';
 import { EventAppModule } from './event-app/event-app.module';
-import { MemberAlarmAppModule } from './member-alarm-app/member-alarm-app.module';
 import { ReturnExchangePolicyModule } from './return_exchange_policy/return_exchange_policy.module';
 import { MemberOrderApp } from './entities/member-order-app.entity';
 import { MemberOrderAddress } from './entities/member-order-address.entity';
@@ -103,7 +102,6 @@ import { DeliveryTrackerModule } from './delivery-tracker/delivery-tracker.modul
     NoticesShoppingAppModule,
     MemberReturnAppModule,
     EventAppModule,
-    MemberAlarmAppModule,
     ReturnExchangePolicyModule,
     PostAppModule,
     MemberOrderAddressModule,

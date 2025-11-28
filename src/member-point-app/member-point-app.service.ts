@@ -78,6 +78,7 @@ export class MemberPointAppService {
         .values({
           mem_id
           , order_detail_app_id: order_detail_app_id
+          , point_type: 'BUY_PRODUCT'
           , point_status: point_status
           , point_amount: point_amount
           , del_yn: 'N'

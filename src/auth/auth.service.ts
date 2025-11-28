@@ -17,7 +17,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(email: string, password: string): Promise<any> {
+  async validateUser(mem_app_id: string, password: string): Promise<any> {
     try {
       const member = await this.memberRepository
         .createQueryBuilder('m')
@@ -29,14 +29,14 @@ export class AuthService {
           'm.center_id',
           'm.mem_app_status'
         ])
-        .where('m.mem_app_id = :email', { email })
+        .where('m.mem_app_id = :mem_app_id', { mem_app_id })
         .getOne();
         
       if (!member) {
         throw new HttpException({
           success: false,
-          message: '존재하지 않는 이메일입니다.',
-          code: 'EMAIL_NOT_FOUND',
+          message: '존재하지 않는 아이디입니다.',
+          code: 'MEM_APP_ID_NOT_FOUND',
           field: 'mem_app_id'
         }, HttpStatus.BAD_REQUEST);
       }
