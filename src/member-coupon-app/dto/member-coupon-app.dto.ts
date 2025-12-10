@@ -89,6 +89,5 @@ export class UpdateMemberCouponAppDto {
   order_app_id: number;
 
   @IsNotEmpty()
-  @Transform(({ value }) => Number(value))
   use_yn: string;
 } 

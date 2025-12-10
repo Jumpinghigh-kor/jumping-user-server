@@ -76,6 +76,10 @@ export class MemberOrderAppService {
             , 'mra.return_reason_type AS return_reason_type'
             , 'mra.reason AS reason'
             , 'mra.return_goodsflow_id AS return_goodsflow_id'
+            , 'mra.customer_tracking_number AS customer_tracking_number'
+            , 'mra.company_tracking_number AS company_tracking_number'
+            , 'mra.customer_courier_code AS customer_courier_code'
+            , 'mra.company_courier_code AS company_courier_code'
             , `
                 (
                   SELECT
@@ -141,6 +145,8 @@ export class MemberOrderAppService {
                 WHERE smpa.order_app_id = moa.order_app_id
                 AND   smpa.payment_status = 'PAYMENT_COMPLETE'
                 AND   smpa.payment_type = 'DELIVERY_FEE'
+                ORDER BY smpa.payment_app_id DESC
+                LIMIT 1
               ) AS delivery_fee_payment_app_id
             `
             , `
@@ -161,6 +167,8 @@ export class MemberOrderAppService {
               WHERE smpa.order_app_id = moa.order_app_id
               AND   smpa.payment_status = 'PAYMENT_COMPLETE'
               AND   smpa.payment_type = 'DELIVERY_FEE'
+              ORDER BY smpa.payment_app_id DESC
+              LIMIT 1
             ) AS delivery_fee_portone_imp_uid
           `
           , `
@@ -171,6 +179,8 @@ export class MemberOrderAppService {
               WHERE smpa.order_app_id = moa.order_app_id
               AND   smpa.payment_status = 'PAYMENT_COMPLETE'
               AND   smpa.payment_type = 'DELIVERY_FEE'
+              ORDER BY smpa.payment_app_id DESC
+              LIMIT 1
             ) AS delivery_fee_portone_merchant_uid
           `
         ])
@@ -283,7 +293,8 @@ export class MemberOrderAppService {
 
   async insertMemberOrderDetailApp(insertMemberOrderDetailAppDto: InsertMemberOrderDetailAppDto): Promise<{ success: boolean; message: string; code: string; order_detail_app_id: number | null }> {
     try {
-      const { mem_id,order_app_id, product_detail_app_id, order_status, order_quantity } = insertMemberOrderDetailAppDto;
+      const { mem_id, order_app_id, product_detail_app_id, order_status, order_quantity, order_group } =
+        insertMemberOrderDetailAppDto;
       
       const reg_dt = getCurrentDateYYYYMMDDHHIISS();
 
@@ -292,13 +303,17 @@ export class MemberOrderAppService {
       const tracking_number = (insertMemberOrderDetailAppDto as any).tracking_number ?? null;
       const goodsflow_id = (insertMemberOrderDetailAppDto as any).goodsflow_id ?? null;
       const purchase_confirm_dt = (insertMemberOrderDetailAppDto as any).purchase_confirm_dt ?? null;
+      const shipping_complete_dt = (insertMemberOrderDetailAppDto as any).shipping_complete_dt ?? null;
       
       const order_group_result = await this.dataSource
         .createQueryBuilder()
-        .select('MAX(moda.order_group) + 1 AS max_order_group')
+        .select('IFNULL(MAX(moda.order_group) + 1, 1) AS max_order_group')
         .from('member_order_detail_app', 'moda')
         .where('moda.order_app_id = :order_app_id', { order_app_id: order_app_id })
         .getRawOne();
+
+      const finalOrderGroup =
+        order_group ?? (order_group_result?.max_order_group ?? 1);
 
       const result = await this.dataSource
         .createQueryBuilder()
@@ -309,10 +324,11 @@ export class MemberOrderAppService {
           , product_detail_app_id: product_detail_app_id
           , order_status: order_status
           , order_quantity: order_quantity
-          , order_group: order_group_result.max_order_group
+          , order_group: finalOrderGroup
           , courier_code: courier_code
           , tracking_number: tracking_number
           , goodsflow_id: goodsflow_id
+          , shipping_complete_dt: shipping_complete_dt
           , purchase_confirm_dt: purchase_confirm_dt
           , reg_dt: reg_dt
           , reg_id: mem_id
@@ -403,7 +419,33 @@ export class MemberOrderAppService {
         setPayload.purchase_confirm_dt = getCurrentDateYYYYMMDDHHIISS();
       }
 
-      if (order_group !== undefined && order_group !== null) {
+      // 취소/반품/교환 신청 상태로 변경될 때는 동일 주문 내에서 새 order_group 으로 이동시키고,
+      // 프론트에서 넘어온 order_group 값은 사용하지 않는다.
+      const shouldMoveToNewGroup = ['CANCEL_APPLY', 'RETURN_APPLY', 'EXCHANGE_APPLY'].includes(order_status);
+
+      if (shouldMoveToNewGroup && order_detail_app_ids && order_detail_app_ids.length > 0) {
+        const firstDetail = await this.dataSource
+          .createQueryBuilder()
+          .select('moda.order_app_id', 'order_app_id')
+          .from('member_order_detail_app', 'moda')
+          .where('moda.order_detail_app_id = :id', { id: order_detail_app_ids[0] })
+          .getRawOne();
+
+        const order_app_id = firstDetail?.order_app_id;
+
+        if (order_app_id) {
+          const maxGroupResult = await this.dataSource
+            .createQueryBuilder()
+            .select('IFNULL(MAX(moda.order_group) + 1, 1)', 'next_group')
+            .from('member_order_detail_app', 'moda')
+            .where('moda.order_app_id = :order_app_id', { order_app_id })
+            .getRawOne();
+
+          const nextGroup = maxGroupResult?.next_group ?? 1;
+          setPayload.order_group = nextGroup;
+        }
+      } else if (order_group !== undefined && order_group !== null) {
+        // 위의 특별 케이스가 아닌 경우에만 프론트에서 전달한 order_group을 그대로 사용
         setPayload.order_group = order_group;
       }
 

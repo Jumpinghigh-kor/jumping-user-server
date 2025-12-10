@@ -16,7 +16,11 @@ export class MemberPointAppController {
   }
 
   @Post('/insertMemberPointApp')
-  insertMemberPointApp(@Body() insertMemberPointAppDto: InsertMemberPointAppDto) {
-    return this.memberPointAppService.insertMemberPointApp(insertMemberPointAppDto);
+  insertMemberPointApp(@Body() payload: any) {
+    try {
+      return this.memberPointAppService.insertMemberPointApp(payload as any);
+    } catch (error) {
+      throw error;
+    }
   }
 } 
