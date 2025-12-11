@@ -307,7 +307,7 @@ export class MemberScheduleAppService {
             not_user_id: scheduleInfo.center_id,
             not_type: '예약 시간 취소 알림',
             not_title: '예약 시간 취소 알림',
-            not_message: scheduleInfo.mem_name + '님이 ' + formatDate(scheduleInfo.sch_dt) + '에 예약을 취소하였습니다.',
+            not_message: scheduleInfo.mem_name + '님이 ' + formatDate(scheduleInfo.sch_dt) + '에 예약을 취소하였습니다. 자동으로 달력에서 삭제되었습니다.',
             not_is_read: '0',
             not_created_at: () => "NOW()",
             not_read_at: null

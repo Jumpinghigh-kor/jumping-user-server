@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Member } from '../entities/member.entity';
 import { GetMemberInfoDto, MemberInfoResponse, UpdateMemberAppPasswordDto, FindPasswordDto } from './dto/member.dto';
 import { COMMON_RESPONSE_CODES, WITHDRAWAL_RESPONSE_CODES } from '../core/constants/response-codes';
@@ -10,7 +10,8 @@ import * as bcrypt from 'bcrypt';
 export class MemberService {
   constructor(
     @InjectRepository(Member)
-    private memberRepository: Repository<Member>
+    private memberRepository: Repository<Member>,
+    private dataSource: DataSource
   ) {}
 
   async getMemberInfo(getMemberInfoDto: GetMemberInfoDto): Promise<{ success: boolean; data: MemberInfoResponse | null; code: string }> {
@@ -397,17 +398,16 @@ export class MemberService {
   async updateMemberWithdrawal(mem_id: number): Promise<{ success: boolean; message: string; code: string }> {
     try {
 
-      const member = await this.memberRepository
+      const orderCount = await this.dataSource
         .createQueryBuilder()
-        .select('COUNT(*)')
+        .select('COUNT(*) AS order_count')
         .from('member_order_app', 'moa')
+        .leftJoin('member_order_detail_app', 'moda', 'moa.order_app_id = moda.order_app_id')
         .where('moa.mem_id = :mem_id', { mem_id })
-        .andWhere('moa.order_status NOT IN (:...statuses)', { 
-          statuses: ['PURCHASE_CONFIRM', 'RETURN_COMPLETE', 'EXCHANGE_COMPLETE'] 
-        })
+        .andWhere('moda.order_status NOT IN ("PURCHASE_CONFIRM", "RETURN_COMPLETE", "EXCHANGE_COMPLETE")')
         .getRawOne();
 
-      if (member.count > 0) {
+      if (orderCount?.order_count > 0) {
         return {
           success: false,
           message: '처리 중인 주문이 있어 탈퇴할 수 없습니다.',
@@ -417,13 +417,16 @@ export class MemberService {
 
       const reservation = await this.memberRepository
         .createQueryBuilder()
-        .select('COUNT(*)')
-        .from('member_schedule_app', 'msa')
+        .select('COUNT(*) AS reservation_count')
+        .from('schedule', 's')
+        .innerJoin('member_schedule_app', 'msa', 's.sch_id = msa.reservation_sch_id')
         .where('msa.mem_id = :mem_id', { mem_id })
-        .andWhere('msa.sch_dt = "RESERVATION_CONFIRM"')
+        .andWhere('msa.agree_yn = "Y"')
+        .andWhere('msa.del_yn = "N"')
+        .andWhere('DATE_FORMAT(NOW(), "%Y%m%d%H%i%s") <=  CONCAT(sch_dt, DATE_FORMAT(STR_TO_DATE(sch_time, "%h:%i %p"), "%H%i"), "00")')
         .getRawOne();
 
-      if (reservation.count > 0) {
+      if (reservation?.reservation_count > 0) {
         return {
           success: false,
           message: '처리 중인 예약이 있어 탈퇴할 수 없습니다.',

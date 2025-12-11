@@ -41,8 +41,6 @@ export class MemberOrderAppService {
                   FORMAT(SUM(smpa.payment_amount) - IFNULL(SUM(smpa.refund_amount), 0), 0)
                 FROM  member_payment_app smpa
                 WHERE smpa.order_app_id = moa.order_app_id
-                ORDER BY smpa.payment_app_id DESC
-                LIMIT 1
               ) AS order_price
             `
           , 'pda.product_detail_app_id AS product_detail_app_id'
@@ -70,6 +68,7 @@ export class MemberOrderAppService {
             , 'DATE_FORMAT(moa.order_dt, "%y.%m.%d") AS order_dt'
             , 'moda.tracking_number AS tracking_number'
             , 'moda.purchase_confirm_dt AS purchase_confirm_dt'
+            , 'moda.shipping_complete_dt AS shipping_complete_dt'
             , 'moda.goodsflow_id AS goodsflow_id'
             , 'mra.approval_yn AS approval_yn'
             , 'mra.return_app_id AS return_app_id'
@@ -143,10 +142,9 @@ export class MemberOrderAppService {
                   smpa.payment_app_id
                 FROM  member_payment_app smpa
                 WHERE smpa.order_app_id = moa.order_app_id
+                AND   smpa.return_app_id = mra.return_app_id
                 AND   smpa.payment_status = 'PAYMENT_COMPLETE'
                 AND   smpa.payment_type = 'DELIVERY_FEE'
-                ORDER BY smpa.payment_app_id DESC
-                LIMIT 1
               ) AS delivery_fee_payment_app_id
             `
             , `
@@ -165,10 +163,9 @@ export class MemberOrderAppService {
                 smpa.portone_imp_uid
               FROM  member_payment_app smpa
               WHERE smpa.order_app_id = moa.order_app_id
+              AND   smpa.return_app_id = mra.return_app_id
               AND   smpa.payment_status = 'PAYMENT_COMPLETE'
               AND   smpa.payment_type = 'DELIVERY_FEE'
-              ORDER BY smpa.payment_app_id DESC
-              LIMIT 1
             ) AS delivery_fee_portone_imp_uid
           `
           , `
@@ -177,10 +174,9 @@ export class MemberOrderAppService {
                 smpa.portone_merchant_uid
               FROM  member_payment_app smpa
               WHERE smpa.order_app_id = moa.order_app_id
+              AND   smpa.return_app_id = mra.return_app_id
               AND   smpa.payment_status = 'PAYMENT_COMPLETE'
               AND   smpa.payment_type = 'DELIVERY_FEE'
-              ORDER BY smpa.payment_app_id DESC
-              LIMIT 1
             ) AS delivery_fee_portone_merchant_uid
           `
         ])
@@ -189,7 +185,7 @@ export class MemberOrderAppService {
         .leftJoin('member_order_detail_app', 'moda', 'moa.order_app_id = moda.order_app_id')
         .leftJoin('product_detail_app', 'pda', 'moda.product_detail_app_id = pda.product_detail_app_id')
         .leftJoin('product_app', 'pa', 'pda.product_app_id = pa.product_app_id')
-        .leftJoin('member_return_app', 'mra', 'moda.order_detail_app_id = mra.order_detail_app_id AND mra.del_yn = "N"')
+        .leftJoin('member_return_app', 'mra', 'moda.order_detail_app_id = mra.order_detail_app_id AND mra.del_yn = "N" AND mra.cancel_yn = "N"')
         .where('moa.mem_id = :mem_id', { mem_id })
         .andWhere('moa.del_yn = :del_yn', { del_yn: 'N' })
         .orderBy('moa.order_dt', 'DESC');

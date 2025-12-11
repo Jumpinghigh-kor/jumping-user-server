@@ -130,6 +130,23 @@ export class MemberOrderAddressService {
       const { order_detail_app_id, mem_id, receiver_name, receiver_phone, address, address_detail, zip_code, enter_way, enter_memo, delivery_request, order_address_type } = insertMemberOrderAddressDto;
       const reg_dt = getCurrentDateYYYYMMDDHHIISS();
       
+      // RETURN 타입 주소는 동일 order_detail_app_id 에 대해 항상 하나만 use_yn = 'Y' 가 되도록
+      // 기존 RETURN 주소(use_yn = 'Y')를 모두 비활성화한다.
+      if (order_address_type === 'RETURN') {
+        await this.dataSource
+          .createQueryBuilder()
+          .update('member_order_address')
+          .set({
+            use_yn: 'N',
+            mod_dt: reg_dt,
+            mod_id: mem_id,
+          })
+          .where('order_detail_app_id = :order_detail_app_id', { order_detail_app_id })
+          .andWhere('order_address_type = :order_address_type', { order_address_type: 'RETURN' })
+          .andWhere('use_yn = :use_yn', { use_yn: 'Y' })
+          .execute();
+      }
+
       const result = await this.dataSource
         .createQueryBuilder()
         .insert()

@@ -32,6 +32,10 @@ export class InsertMemberPaymentAppDto {
   @IsNotEmpty()
   mem_id: number;
 
+  @IsNumber()
+  @IsOptional()
+  return_app_id: number;
+
   @IsString()
   @IsNotEmpty()
   payment_status: string;

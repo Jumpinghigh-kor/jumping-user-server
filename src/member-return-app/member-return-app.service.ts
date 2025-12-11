@@ -98,6 +98,7 @@ export class MemberReturnAppService {
         .leftJoin('product_app', 'pa', 'pda.product_app_id = pa.product_app_id')
         .leftJoin('member_return_app', 'mra', 'moda.order_detail_app_id = mra.order_detail_app_id')
         .where('m.mem_id = :mem_id', params)
+        .andWhere('moda.order_status IN ("RETURN_COMPLETE", "EXCHANGE_COMPLETE", "CANCEL_COMPLETE")')
         .andWhere(where.join(' AND '), params)
         .getRawMany();
         
