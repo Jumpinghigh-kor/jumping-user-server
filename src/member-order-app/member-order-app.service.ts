@@ -415,9 +415,9 @@ export class MemberOrderAppService {
         setPayload.purchase_confirm_dt = getCurrentDateYYYYMMDDHHIISS();
       }
 
-      // 취소/반품/교환 신청 상태로 변경될 때는 동일 주문 내에서 새 order_group 으로 이동시키고,
+      // 취소/반품/교환 신청 또는 구매확정 상태로 변경될 때는 동일 주문 내에서 새 order_group 으로 이동시키고,
       // 프론트에서 넘어온 order_group 값은 사용하지 않는다.
-      const shouldMoveToNewGroup = ['CANCEL_APPLY', 'RETURN_APPLY', 'EXCHANGE_APPLY'].includes(order_status);
+      const shouldMoveToNewGroup = ['CANCEL_APPLY', 'RETURN_APPLY', 'EXCHANGE_APPLY', 'PURCHASE_CONFIRM'].includes(order_status);
 
       if (shouldMoveToNewGroup && order_detail_app_ids && order_detail_app_ids.length > 0) {
         const firstDetail = await this.dataSource
